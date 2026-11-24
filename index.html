@@ -2,7 +2,10 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Essenza | Fragancias & Belleza</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap">
+<link rel="preconnect" href="https://yfmttfggsghaarkkplrf.supabase.co" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script>const SBU='https://yfmttfggsghaarkkplrf.supabase.co',SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmbXR0Zmdnc2doYWFya2twbHJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0ODIyMTAsImV4cCI6MjExMTA1ODIxMH0.zLlv7mrRi9y9S6m2b1ov4cEB9rVdAPSVtubToRwBKIM';
+const PF={};['products','cats','revs','reviews','settings'].forEach(c=>{PF[c]=fetch(SBU+'/rest/v1/'+c+'?select=id,data&order=created_at.asc',{headers:{apikey:SBK,Authorization:'Bearer '+SBK}}).then(r=>r.ok?r.json():null).catch(()=>null)});</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&display=swap"></noscript>
 <style>
 :root{--bg:#061a2f;--cd:#0b2a46;--tx:#fff;--co:#ff4d42;--co2:#ff7a5c;--cr:#fff;--nv:#0b2a46;--mut:#e3eef6;--bd:#17405f;--ac:#4ac9e3;--ac2:#2ea8d0;--ink:#04121f;--gr:#25d366;color-scheme:dark;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom,0px)}
 html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}body{touch-action:pan-x pan-y;-webkit-tap-highlight-color:transparent}input,select,textarea{font-size:16px!important}button,a,label{touch-action:manipulation}
@@ -16,10 +19,10 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var
 .lg{width:48px;height:46px;object-fit:contain;flex:none}.logo small{white-space:nowrap}.hl{width:230px;height:auto;display:block;margin:0 auto 6px}
 .ib{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--co2),var(--co));box-shadow:0 6px 16px rgba(255,77,66,.4);border:0;color:#fff;display:grid;place-items:center;position:relative;cursor:pointer;transition:transform .2s}.ib:active{transform:scale(.88)}
 .cnt{position:absolute;top:-6px;right:-6px;background:var(--cr);color:#d92f3a;box-shadow:0 0 0 2px var(--bg);font-weight:800;border-radius:99px;font-size:11px;min-width:18px;height:18px;display:grid;place-items:center}
-main{padding:16px;animation:in .3s cubic-bezier(.2,.8,.2,1)}@keyframes in{from{opacity:0;transform:translateX(24px)}}
+main{padding:16px}
 main.off{display:none}
 h1{font-size:28px;margin:8px 0}h2{font-size:20px;margin:26px 0 12px}
-h2::after{content:"";display:block;width:36px;height:3px;border-radius:3px;margin-top:6px;background:linear-gradient(90deg,var(--ac),var(--cr),var(--co));background-size:200% 100%;animation:ul 3s linear infinite}@keyframes ul{to{background-position:200% 0}}
+h2::after{content:"";display:block;width:36px;height:3px;border-radius:3px;margin-top:6px;background:linear-gradient(90deg,var(--ac),var(--cr),var(--co));background-size:200% 100%}
 .mut{color:var(--mut)}.row{display:flex;gap:10px}.c{text-align:center}.c h2::after{margin:6px auto 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:16px;padding:0 22px;min-height:50px;font:inherit;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--co2),var(--co));cursor:pointer;box-shadow:0 8px 22px rgba(255,77,66,.42);transition:transform .2s}.btn:active{transform:scale(.95)}
 .btn.g{color:var(--ink);background:linear-gradient(135deg,#46f08a,var(--gr));box-shadow:0 8px 24px rgba(37,211,102,.4)}.btn.w{width:100%}
@@ -30,7 +33,7 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac);box-sha
 select option{color:#04121f}::placeholder{color:#7f9fb5}
 .fl{display:block;font-size:14px;color:var(--mut);margin-bottom:12px}.fl input,.fl select,.fl textarea{margin-top:6px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:var(--cd);border:1px solid var(--bd);border-radius:20px;padding:14px;position:relative;cursor:pointer;overflow:hidden;transition:border-color .3s;animation:cdi .5s both}@keyframes cdi{from{opacity:0;transform:translateY(16px)}}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:20px;padding:14px;position:relative;cursor:pointer;overflow:hidden;transition:border-color .3s,transform .2s cubic-bezier(.22,1,.36,1);animation:cdi .4s cubic-bezier(.22,1,.36,1) backwards}.card:active{transform:scale(.97)}.grid>.card:nth-child(2){animation-delay:.04s}.grid>.card:nth-child(3){animation-delay:.08s}.grid>.card:nth-child(4){animation-delay:.12s}.grid>.card:nth-child(n+5){animation-delay:.16s}.sk{min-height:210px;pointer-events:none;position:relative;animation:none}.sk::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.07) 50%,transparent 70%);transform:translateX(-100%);animation:skm 1.2s infinite}@keyframes skm{to{transform:translateX(100%)}}.pz,.pz::before,.pz *{animation-play-state:paused!important}@keyframes cdi{from{opacity:0;transform:translateY(16px)}}
 .card:active,.card:hover{border-color:var(--co)}
 .pic{height:120px;margin-bottom:10px;border-radius:14px;overflow:hidden;display:grid;place-items:center;color:var(--ac);background:rgba(255,255,255,.04)}
 .pic img{width:100%;height:100%;object-fit:contain}.pic img,.ci img,.gsl img,.li .t img,.th img{mix-blend-mode:lighten}.pic svg{height:92px;width:auto}
@@ -41,17 +44,18 @@ select option{color:#04121f}::placeholder{color:#7f9fb5}
 .sw{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}.sw .chip.on{background:rgba(255,77,66,.2);color:var(--tx);box-shadow:inset 0 0 0 2px var(--co)}
 .szr{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;margin:14px 0 18px}.szr b{margin:0}.szr .sw{margin:0;display:flex;flex-wrap:wrap;gap:6px 14px}.szr .chip{background:none;box-shadow:none;padding:6px 2px;font-weight:500;color:var(--mut)}.szr .chip.on{background:none;box-shadow:none;color:var(--tx);font-weight:700;text-decoration:underline;text-decoration-color:var(--co);text-underline-offset:6px;text-decoration-thickness:2px}.szr.one .chip{pointer-events:none;color:var(--tx);font-weight:500;text-decoration:none}
 
-@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
-.hero{background:var(--cd);border-radius:24px;padding:24px 22px 28px;position:relative}
-.hero::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;background:conic-gradient(from var(--ang),transparent 0 70%,var(--ac2) 85%,var(--ac) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:ang 4.5s linear infinite;pointer-events:none}@keyframes ang{to{--ang:360deg}}
+.hero{background:var(--cd);border-radius:24px;padding:24px 22px 28px;position:relative;overflow:hidden;isolation:isolate}
+.hero::before{content:"";position:absolute;left:-60%;top:50%;width:220%;aspect-ratio:1;margin-top:-110%;background:conic-gradient(transparent 0 70%,var(--ac2) 85%,var(--ac) 100%);animation:ang 4.5s linear infinite;will-change:transform;z-index:-2}
+.hero::after{content:"";position:absolute;inset:2px;border-radius:22px;background:var(--cd);z-index:-1}
+@keyframes ang{to{transform:rotate(360deg)}}
 .hero svg{width:70px;height:84px;display:block;margin:0 auto 6px}
 .hero h1{background:linear-gradient(100deg,#fff 35%,var(--ac) 50%,#fff 65%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shm 6s ease-in-out infinite}@keyframes shm{0%{background-position:120% 0}60%,100%{background-position:-120% 0}}
 .hero .btn{margin-top:18px}
 .car{overflow:hidden;margin:14px -16px 10px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
 .cart{display:flex;width:max-content;animation:cs 30s linear infinite}@keyframes cs{to{transform:translateX(-50%)}}
 .ci{flex:none;width:132px;height:132px;margin-right:12px;border-radius:18px;overflow:hidden;background:var(--cd);border:1px solid var(--bd);display:grid;place-items:center;color:var(--ac)}.ci img{width:100%;height:100%;object-fit:cover}.ci svg{height:84px;width:auto}
-.sx{position:relative;padding:44px 0 36px}.sx::before{content:"";position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent)}
-.sx::after{content:"";position:absolute;top:-3px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac)}
+.sx{position:relative;padding:44px 0 36px;content-visibility:auto;contain-intrinsic-size:auto 420px}.sx::before{content:"";position:absolute;top:3px;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent)}
+.sx::after{content:"";position:absolute;top:0;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac)}
 .sx h2{margin:0 0 22px}.grid+.sx{margin-top:44px}
 .feat{display:grid;gap:26px;max-width:340px;margin:0 auto}.nb{display:flex;align-items:center;gap:18px;text-align:left}.nb p{margin:3px 0 0;font-size:14px}
 .ico{flex:none;width:48px;height:48px;display:grid;place-items:center;color:var(--ac)}
@@ -100,28 +104,26 @@ a{color:var(--co2)}a:focus-visible,button:focus-visible,summary:focus-visible{ou
 .hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0;overflow:hidden}
 .rmo{position:fixed;inset:0;z-index:80;background:rgba(2,10,20,.72);display:none;align-items:flex-end;justify-content:center;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .rmo.on{display:flex}
-.rmb{position:relative;width:100%;max-width:520px;max-height:92vh;overflow:auto;background:var(--cd);border:1px solid var(--bd);border-radius:24px 24px 0 0;padding:26px 18px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;animation:rmu .3s ease}
+.rmb{position:relative;width:100%;max-width:520px;max-height:92vh;overflow:auto;background:var(--cd);border:1px solid var(--bd);border-radius:24px 24px 0 0;padding:26px 18px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;animation:rmu .35s cubic-bezier(.22,1,.36,1)}
 .rmb .fl{text-align:left}
 .rmx{position:absolute;top:6px;right:6px;width:44px;height:44px;border:0;background:none;color:var(--mut);font-size:30px;cursor:pointer}
 @keyframes rmu{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
-</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault()},{passive:false});document.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},{passive:false});</script><script>(function(){var C={},SEL=[['.gsl img',900],['.li.cl .t img',260]];
+</style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){var C={},SEL=[['.gsl img',900],['.li.cl .t img',260]],T=70,T2=T*T;
 function done(i){i.setAttribute('data-ok','1')}
-function cut(i,S){var src=i.getAttribute('src');if(!src||src.indexOf('data:')==0){done(i);return}i.setAttribute('data-cd','1');var key=S+'|'+src;if(C[key]){i.src=C[key];done(i);return}
-var m=new Image();m.crossOrigin='anonymous';m.onerror=function(){done(i)};
-m.onload=function(){try{var r=Math.min(1,S/Math.max(m.naturalWidth,m.naturalHeight)),w=Math.max(1,Math.round(m.naturalWidth*r)),h=Math.max(1,Math.round(m.naturalHeight*r)),cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(m,0,0,w,h);var im=x.getImageData(0,0,w,h),d=im.data;
-function px(a,b){var o=(b*w+a)*4;return[d[o],d[o+1],d[o+2],d[o+3]]}
-var cs=[px(0,0),px(w-1,0),px(0,h-1),px(w-1,h-1)],bg=[0,1,2].map(function(k){return(cs[0][k]+cs[1][k]+cs[2][k]+cs[3][k])/4});
-function dist(a){return Math.sqrt(Math.pow(a[0]-bg[0],2)+Math.pow(a[1]-bg[1],2)+Math.pow(a[2]-bg[2],2))}
-if(cs.some(function(c){return dist(c)>40})||cs[0][3]<250){done(i);return}
-var T=70,seen=new Uint8Array(w*h),q=[],n=0;
-function add(a,b){if(a<0||b<0||a>=w||b>=h)return;var k=b*w+a;if(seen[k])return;var o=k*4;if(dist([d[o],d[o+1],d[o+2]])>T)return;seen[k]=1;q.push(k)}
-for(var a=0;a<w;a++){add(a,0);add(a,h-1)}for(var b=0;b<h;b++){add(0,b);add(w-1,b)}
-while(n<q.length){var k=q[n++],a=k%w,b=(k-a)/w;d[k*4+3]=0;add(a+1,b);add(a-1,b);add(a,b+1);add(a,b-1)}
-for(var b=0;b<h;b++)for(var a=0;a<w;a++){var k=b*w+a;if(seen[k])continue;if((a>0&&seen[k-1])||(a<w-1&&seen[k+1])||(b>0&&seen[k-w])||(b<h-1&&seen[k+w])){var o=k*4,e=dist([d[o],d[o+1],d[o+2]]);if(e<T*1.8)d[o+3]=Math.round(255*Math.max(0,(e-T)/(T*0.8)))}}
-x.putImageData(im,0,0);C[key]=cv.toDataURL('image/png');i.src=C[key];done(i)}catch(e){done(i)}};
-m.src=src}
-function run(){SEL.forEach(function(p){var l=document.querySelectorAll(p[0]+':not([data-cd])');for(var k=0;k<l.length;k++)cut(l[k],p[1])})}
-new MutationObserver(run).observe(document.documentElement,{childList:true,subtree:true});run()})();</script></head><body>
+function job(src,S){var key=S+'|'+src;return C[key]||(C[key]=new Promise(function(ok){var m=new Image();m.crossOrigin='anonymous';m.decoding='async';m.onerror=function(){ok(null)};
+m.onload=function(){try{var r=Math.min(1,S/Math.max(m.naturalWidth,m.naturalHeight)),w=Math.max(1,Math.round(m.naturalWidth*r)),h=Math.max(1,Math.round(m.naturalHeight*r)),cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(m,0,0,w,h);var im=x.getImageData(0,0,w,h),d=im.data,N=w*h,cs=[0,w-1,(h-1)*w,N-1],br=0,bg=0,bb=0;
+cs.forEach(function(k){br+=d[k*4];bg+=d[k*4+1];bb+=d[k*4+2]});br/=4;bg/=4;bb/=4;
+function ds(o){var a=d[o]-br,b=d[o+1]-bg,c=d[o+2]-bb;return a*a+b*b+c*c}
+if(cs.some(function(k){return ds(k*4)>1600})||d[3]<250){ok(null);return}
+var seen=new Uint8Array(N),q=new Int32Array(N),n=0,t=0;
+function add(k){if(seen[k]||ds(k*4)>T2)return;seen[k]=1;q[t++]=k}
+for(var a=0;a<w;a++){add(a);add((h-1)*w+a)}for(var b=0;b<h;b++){add(b*w);add(b*w+w-1)}
+while(n<t){var k=q[n++],a=k%w;d[k*4+3]=0;if(a<w-1)add(k+1);if(a>0)add(k-1);if(k>=w)add(k-w);if(k<N-w)add(k+w)}
+for(var k=0;k<N;k++){if(seen[k])continue;var a=k%w;if((a>0&&seen[k-1])||(a<w-1&&seen[k+1])||(k>=w&&seen[k-w])||(k<N-w&&seen[k+w])){var e=Math.sqrt(ds(k*4));if(e<T*1.8)d[k*4+3]=Math.round(255*Math.max(0,(e-T)/(T*.8)))}}
+x.putImageData(im,0,0);cv.toBlob(function(bl){ok(bl?URL.createObjectURL(bl):null)},'image/png')}catch(e){ok(null)}};m.src=src}))}
+function cut(i,S){var src=i.getAttribute('src');i.setAttribute('data-cd','1');if(!src||/^(data|blob):/.test(src)){done(i);return}job(src,S).then(function(u){if(u)i.src=u;done(i)})}
+window.cutImgs=function(){SEL.forEach(function(p){var l=document.querySelectorAll(p[0]+':not([data-cd])');for(var k=0;k<l.length;k++)cut(l[k],p[1])})};
+window.precut=function(u){u&&job(u,900)}})();</script></head><body>
 <svg width="0" height="0" style="position:absolute"><defs><symbol id="bt" viewBox="0 0 120 150"><rect x="47" y="2" width="26" height="16" rx="4" fill="currentColor"/><rect x="42" y="20" width="36" height="5" fill="currentColor"/><rect x="44" y="25" width="32" height="18" fill="currentColor"/><path d="M38 44h44l8 8H30z" fill="currentColor"/><path d="M12 54l16-14h64l16 14v64l-10 10H22l-10-10z" fill="currentColor"/><path d="M28 56h64l8 6-4 52H24l-4-52z" fill="#061a2f"/><path d="M26 82q22-6 40 4t32 0l-3 26H29z" fill="currentColor" opacity=".75"/></symbol></defs></svg>
 <div id="pb"></div><header><div class="logo" data-a="logo"><img id="lg" class="lg" alt="Essenza"><span style="line-height:1">ESSENZA<small style="display:block;font:500 9px/1 'Bricolage Grotesque',sans-serif;letter-spacing:.36em;color:var(--ac);margin-top:6px">FRAGANCIAS & BELLEZA</small></span></div><button class="ib" data-a="go" data-h="catalogo" aria-label="Buscar" id="sb"></button><button class="ib" data-a="go" data-h="carrito" aria-label="Carrito" id="cb"></button></header>
 <main id="m"></main><main id="m2" class="off"></main><div id="ts"></div><div id="wo"><div><div class="spn"></div><b style="font-size:18px">Abriendo WhatsApp…</b></div></div>
@@ -136,17 +138,26 @@ const ic=(k,s=24)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="no
 const bot=s=>`<svg viewBox="0 0 120 150" style="height:${s}px;width:auto"><use href="#bt"/></svg>`;
 const SEED=[['Eau de Parfum Noir','Fragancias'],['Eau de Parfum Aura','Fragancias'],['Sérum Hidratante Facial','Tratamientos faciales'],['Crema Facial de Día','Tratamientos faciales'],['Shampoo Reparador','Cuidado capilar'],['Acondicionador Nutritivo','Cuidado capilar'],['Jabón Líquido Corporal','Higiene corporal'],['Crema Corporal Hidratante','Higiene corporal']].map((x,i)=>({id:'s'+i,n:x[0],c:x[1],p:0,d:'',imgs:[],sz:[],f:i<4?1:0}));
 const S={cats:[],prods:[],revs:[],ords:[],set:{},cart:[]};
+try{const k=JSON.parse(localStorage.getItem('essenza_cache_v3')||'null');if(k){S.prods=k.p||[];S.cats=k.c||[];S.set=k.s||{};S.revs=k.r||[];S.rv=k.v||[];S.hit=1}}catch(e){}
+setTimeout(()=>{if(!S.hit){S.hit=1;draw()}},2500);
+const SK=n=>'<div class="card sk"></div>'.repeat(n);let rq=0;const draw=()=>{rq||(rq=requestAnimationFrame(()=>{rq=0;render(1)}))};
 let db=null,adm=false,tab='prods',ed=null,IM=[],q='',cat='Todas',lim=60,sel=null,sz=null,shipSel='',rs=5,tm,authT=0;
 try{S.cart=JSON.parse(localStorage.getItem('essenza_cart_v2'))||[]}catch(e){}
 const cartN=()=>S.cart.reduce((a,c)=>a+(find(c.id)?(+c.q||0):0),0);
 const save=()=>{try{localStorage.setItem('essenza_cart_v2',JSON.stringify(S.cart))}catch(e){}};
-const byN=(a,b)=>nz(a.n).localeCompare(nz(b.n),'es',{numeric:true,sensitivity:'base'});const P=()=>S.prods.length?S.prods:SEED,CATS=()=>S.cats.length?S.cats.map(c=>c.n):['Fragancias','Tratamientos faciales','Cuidado capilar','Higiene corporal'];
+const byN=(a,b)=>nz(a.n).localeCompare(nz(b.n),'es',{numeric:true,sensitivity:'base'});const P=()=>S.prods.length?S.prods:S.hit?SEED:[],CATS=()=>S.cats.length?S.cats.map(c=>c.n):['Fragancias','Tratamientos faciales','Cuidado capilar','Higiene corporal'];
 const find=id=>P().find(p=>p.id==id),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const nz=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const SET=()=>S.set||{},WA=()=>SET().wa||'',LK=()=>SET().links||[],SH=()=>SET().ship||[];
 function toast(t){const e=$('#ts');e.textContent=t;e.classList.add('on');clearTimeout(tm);tm=setTimeout(()=>e.classList.remove('on'),2000)}
-const SBU='https://yfmttfggsghaarkkplrf.supabase.co',SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmbXR0Zmdnc2doYWFya2twbHJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0ODIyMTAsImV4cCI6MjExMTA1ODIxMH0.zLlv7mrRi9y9S6m2b1ov4cEB9rVdAPSVtubToRwBKIM';
 let SB,ordsOn=0;const W={};
+const HND={products:v=>S.prods=v.sort(byN),cats:v=>S.cats=v,revs:v=>S.revs=v.sort((a,b)=>(a.ts||0)-(b.ts||0)),reviews:v=>S.rv=v},ROW={};let ct;
+function feed(c,rows){ROW[c]=rows;if(c=='settings'){const r=rows.find(x=>x.id=='main');S.set=r&&r.data||{}}else HND[c](rows.map(r=>({id:r.id,...r.data})));S.hit=1;clearTimeout(ct);ct=setTimeout(()=>{try{localStorage.setItem('essenza_cache_v3',JSON.stringify({p:S.prods,c:S.cats,s:S.set,r:S.revs,v:S.rv}))}catch(e){}},1500);draw()}
+Object.keys(PF).forEach(c=>PF[c].then(r=>{if(r&&!ROW[c])feed(c,r)}));
+function watchRT(c){let t;const load=async()=>{const{data,error}=await SB.from(c).select('id,data').order('created_at');if(!error&&data)feed(c,data)};(W[c]=W[c]||[]).push(load);
+ try{SB.channel('rt-'+c).on('postgres_changes',{event:'*',schema:'public',table:c},p=>{const n=p.new,o=p.old,del=p.eventType=='DELETE',id=del?o&&o.id:n&&n.id;let L=ROW[c];if(!L||id==null||(!del&&n.data===undefined)){clearTimeout(t);t=setTimeout(load,100);return}
+  if(del)L=L.filter(x=>x.id!=id);else{const i=L.findIndex(x=>x.id==id);L=i<0?[...L,{id,data:n.data}]:L.map((x,k)=>k==i?{id,data:n.data}:x)}feed(c,L)}).subscribe()}catch(e){}
+ if(!ROW[c])load()}
 function watch(c,cb,er){let t,dead=0;const load=async()=>{const{data,error}=await SB.from(c).select('id,data').order('created_at');if(error){er&&er(error);return}if(!dead)cb(data)};(W[c]=W[c]||[]).push(load);load();try{SB.channel('rt-'+c+'-'+Math.random().toString(36).slice(2)).on('postgres_changes',{event:'*',schema:'public',table:c},()=>{clearTimeout(t);t=setTimeout(load,200)}).subscribe()}catch(e){}}
 const sync=c=>(W[c]||[]).forEach(f=>f());
 const mkdb=()=>({collection:c=>({doc:id=>({
@@ -159,7 +170,7 @@ const chkAdm=async se=>{if(!se)return 0;const{data}=await SB.from('admins').sele
 const put=async(c,id,d)=>{if(!db)return toast('Guardado no disponible');try{await db.collection(c).doc(id).set(d);return 1}catch(e){toast('No se pudo guardar')}};
 const del=async(c,id)=>{if(!db)return;try{await db.collection(c).doc(id).delete()}catch(e){toast('No se pudo borrar')}};
 const saveSet=p=>put('settings','main',{...SET(),...p});
-function sub(c,fn){try{db.collection(c).onSnapshot(s=>{fn(s.docs.map(d=>({id:d.id,...d.data()})));render(1)},()=>{})}catch(e){}}
+function sub(c,fn){try{db.collection(c).onSnapshot(s=>{fn(s.docs.map(d=>({id:d.id,...d.data()})));draw()},()=>{})}catch(e){}}
 const stars=n=>`<div class="rs">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></div>`;
 const sc=n=>Math.min(5,Math.max(1,Math.round(+n)||5)),RV=()=>S.rv||[];
 let prs=5,srs=5,prLim=5,hLim=8,rvl={};try{rvl=JSON.parse(localStorage.getItem('essenza_rv_v1'))||{}}catch(e){}
@@ -179,7 +190,7 @@ function rvModal(){let m=$('#rmo');if(!m){m=document.createElement('div');m.id='
  m.innerHTML=`<div class="rmb" role="dialog" aria-modal="true" aria-label="Dejar un comentario"><button class="rmx" data-a="rvclose" aria-label="Cerrar">×</button><h2 style="margin-top:0">Contanos tu experiencia</h2><p class="mut" style="margin-top:0">Tu opinión sobre Essenza nos ayuda a mejorar.</p>${pickStars('rss',srs)}${fld('Tu nombre','srn','','','maxlength="40" autocomplete="given-name"')}<label class="fl">Tu comentario<textarea id="srt" rows="4" maxlength="500" placeholder="¿Cómo fue tu experiencia con la tienda?"></textarea></label><div class="hp"><input id="srh" tabindex="-1" autocomplete="off"></div><button class="btn w" data-a="rvsend">Enviar comentario</button></div>`;
  m.classList.add('on');document.documentElement.style.overflow='hidden'}
 const rvClose=()=>{const m=$('#rmo');if(m)m.classList.remove('on');document.documentElement.style.overflow=''};
-const pic=(p,s)=>(p.imgs||[])[0]?`<img src="${esc(p.imgs[0])}" alt="" loading="lazy">`:bot(s);
+const pic=(p,s)=>(p.imgs||[])[0]?`<img src="${esc(p.imgs[0])}" alt="" loading="lazy" decoding="async">`:bot(s);
 const card=p=>`<div class="card" data-a="open" data-id="${p.id}">${p.o>p.p&&p.p?`<span class="badge">-${Math.round((1-p.p/p.o)*100)}%</span>`:''}<div class="pic">${pic(p,92)}</div><div class="nm">${esc(p.n)}</div><div class="pr">${gs(p.p)}</div>${p.o>p.p&&p.p?`<s>${gs(p.o)}</s>`:''}</div>`;
 const wa=(t,w)=>{if(!WA()){navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});return toast('Configurá el WhatsApp en el panel')}const o=$('#wo');o.classList.add('on');setTimeout(()=>o.classList.remove('on'),1600);window.open(`https://wa.me/${WA()}?text=${encodeURIComponent(t)}`,'_blank')};
 const cartT=()=>S.cart.reduce((a,c)=>a+c.q*((find(c.id)||{}).p||0),0);
@@ -189,11 +200,14 @@ const shipTxt=()=>{const z=shipZ();return z?`Envío a <b>${esc(z.n)}</b>: <b sty
 const LEG={terminos:['Términos y condiciones',[['Uso del sitio','Al usar Essenza Perfumería aceptás estos términos. Los pedidos se confirman por WhatsApp.'],['Precios','Los precios están en guaraníes y pueden cambiar sin previo aviso. El pedido se confirma una vez acordado el pago.'],['Productos','Trabajamos con perfumes, skincare y cuidado capilar originales. Las fotos son referenciales.']]],privacidad:['Política de privacidad',[['Datos que recibimos','Nombre, teléfono y dirección que ingresás al hacer un pedido, usados solo para gestionarlo.'],['Uso','No vendemos ni compartimos tus datos con terceros.']]],envios:['Envíos y entregas',[['Cobertura','Coordinamos envíos a tu ciudad por WhatsApp. El costo y el plazo se muestran en el carrito.'],['Retiro','También podés retirar tu pedido en Ciudad del Este.']]],cambios:['Cambios y devoluciones',[['Cambios','Si tu producto llega dañado o incorrecto, escribinos dentro de las 48 horas.'],['Productos sellados','Por higiene, los perfumes y cosméticos abiertos no tienen cambio.']]],cookies:['Cookies',[['Almacenamiento local','Usamos almacenamiento del navegador solo para recordar tu carrito.']]]};
 const FAQ=[['¿Los perfumes son originales?','Sí, trabajamos solo con fragancias y cosméticos originales.'],['¿Los precios incluyen envío?','Te mostramos el costo de envío en el carrito según tu ciudad.'],['¿Cómo hago un pedido?','Agregá los productos al carrito, completá tus datos y enviá el pedido por WhatsApp.'],['¿Cuáles son las formas de pago?','Las coordinamos con vos por WhatsApp antes de confirmar el pedido.'],['¿Puedo consultar antes de comprar?','Sí, escribinos por WhatsApp y te ayudamos a elegir tu fragancia o tu rutina de cuidado.'],['¿Atienden a todo el país?','Sí, hacemos envíos a todo el país.']];
 const NET={instagram:'Instagram',facebook:'Facebook',tiktok:'TikTok',youtube:'YouTube',web:'Sitio web'};
-const grid=()=>{const g=$('#grid');if(!g)return;const ws=nz(q).split(/\s+/).filter(Boolean),l=P().filter(p=>(cat=='Todas'||p.c==cat)&&ws.every(w=>nz(p.n+' '+p.c).includes(w)));g.innerHTML=l.length?l.slice(0,lim).map(card).join('')+(l.length>lim?`<div style="grid-column:1/-1;text-align:center"><button class="chip" data-a="more">Ver más (${l.length-lim})</button></div>`:''):`<p class="mut" style="grid-column:1/-1;text-align:center;margin:30px 0">Sin resultados${q.trim()?` para “${esc(q.trim())}”`:''}.</p>`;const b=$('#fb');if(b)b.classList.toggle('on',cat!='Todas')};
+function setG(g,h){const t=document.createElement('template');t.innerHTML=h;const old=new Map(),keep=new Set();[...g.children].forEach(c=>{if(c.dataset.id&&c.classList.contains('card'))old.set(c.dataset.id,c)});
+ const L=[...t.content.children].map(n=>{const x=n.dataset.id&&old.get(n.dataset.id),r=x&&x.outerHTML===n.outerHTML?x:n;keep.add(r);return r});
+ [...g.children].forEach(c=>{keep.has(c)||c.remove()});let r=g.firstChild;L.forEach(n=>{n===r?r=r.nextSibling:g.insertBefore(n,r)})}
+const grid=()=>{const g=$('#grid');if(!g)return;const ws=nz(q).split(/\s+/).filter(Boolean),l=P().filter(p=>(cat=='Todas'||p.c==cat)&&ws.every(w=>nz(p.n+' '+p.c).includes(w)));setG(g,!S.hit?SK(8):l.length?l.slice(0,lim).map(card).join('')+(l.length>lim?`<div style="grid-column:1/-1;text-align:center"><button class="chip" data-a="more">Ver más (${l.length-lim})</button></div>`:''):`<p class="mut" style="grid-column:1/-1;text-align:center;margin:30px 0">Sin resultados${q.trim()?` para “${esc(q.trim())}”`:''}.</p>`);const b=$('#fb');if(b)b.classList.toggle('on',cat!='Todas')};
 function descHTML(d){return '<div class="dsc" style="margin:12px 0 16px">'+String(d).split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^([^:]{1,40}):\s*(.*)$/);return m?`<div><b>${esc(m[1])}:</b> ${esc(m[2])}</div>`:`<div>${esc(l)}</div>`}).join('')+'</div>'}
-function home(){const ps=P(),F=ps.some(p=>p.f)?ps.filter(p=>p.f):ps,O=ps.filter(p=>p.o>p.p&&p.p),L=ps.map(p=>(p.imgs||[])[0]).filter(Boolean),cr=(SET().car||[]).length?SET().car:L,ci=cr.length?cr.map(u=>`<div class="ci"><img src="${esc(u)}" alt=""></div>`).join(''):CATS().map(()=>`<div class="ci">${bot(84)}</div>`).join('');
+function home(){const ps=P(),F=ps.some(p=>p.f)?ps.filter(p=>p.f):ps,O=ps.filter(p=>p.o>p.p&&p.p),L=ps.map(p=>(p.imgs||[])[0]).filter(Boolean),cr=(SET().car||[]).length?SET().car:L,ci=cr.length?cr.map(u=>`<div class="ci"><img src="${esc(u)}" alt="" loading="lazy" decoding="async"></div>`).join(''):CATS().map(()=>`<div class="ci">${bot(84)}</div>`).join('');
  return `<div class="c"><div class="hero"><div class="eb">BOUTIQUE DE BELLEZA Y CUIDADO PERSONAL</div><h1>Fragancias exclusivas, tratamientos faciales y cuidados capilares</h1><p class="mut">De las marcas más exclusivas del mundo. Una selección de productos 100% originales, con asesoramiento experto y envíos a todo el país.</p><div class="row"><button class="btn" data-a="go" data-h="catalogo">Ver catálogo</button></div></div><div class="car"><div class="cart">${ci+ci}</div></div>
- <h2>Nuestras colecciones</h2><div class="grid">${CATS().slice(0,4).map((c,k)=>`<div class="card col" data-a="cat" data-c="${esc(c)}"><div class="ico">${ic(({'Fragancias':'frag','Tratamientos faciales':'rost','Cuidado capilar':'tij','Higiene corporal':'burb'})[c]||'star',28)}</div><b>${esc(c)}</b><small>${esc({'Fragancias':'Perfumes exclusivos y originales','Tratamientos faciales':'Sérums, cremas y limpiadores','Cuidado capilar':'Shampoo y tratamientos','Higiene corporal':'Geles y cremas corporales'}[c]||'Ver colección')}</small></div>`).join('')}</div><h2>Selección destacada</h2><div class="grid">${F.slice(0,4).map(card).join('')}</div><h2>Ofertas especiales</h2>${O.length?`<div class="grid">${O.slice(0,4).map(card).join('')}</div>`:'<p class="mut">Pronto habrá ofertas.</p>'}
+ <h2>Nuestras colecciones</h2><div class="grid">${CATS().slice(0,4).map((c,k)=>`<div class="card col" data-a="cat" data-c="${esc(c)}"><div class="ico">${ic(({'Fragancias':'frag','Tratamientos faciales':'rost','Cuidado capilar':'tij','Higiene corporal':'burb'})[c]||'star',28)}</div><b>${esc(c)}</b><small>${esc({'Fragancias':'Perfumes exclusivos y originales','Tratamientos faciales':'Sérums, cremas y limpiadores','Cuidado capilar':'Shampoo y tratamientos','Higiene corporal':'Geles y cremas corporales'}[c]||'Ver colección')}</small></div>`).join('')}</div><h2>Selección destacada</h2><div class="grid">${S.hit?F.slice(0,4).map(card).join(''):SK(4)}</div><h2>Ofertas especiales</h2>${O.length?`<div class="grid">${O.slice(0,4).map(card).join('')}</div>`:'<p class="mut">Pronto habrá ofertas.</p>'}
  <section class="sx"><div class="feat">${[['truck','Envíos a todo el país','Coordinamos la entrega por WhatsApp, a tu ciudad.'],['chat','Atención personalizada','Te respondemos directo por WhatsApp, sin bots.'],['shield','Compra segura','Confirmás tu pedido antes de pagar. Sin sorpresas.'],['tag','Productos originales','Marcas auténticas, seleccionadas con cuidado.']].map(f=>`<div class="nb"><div class="ico">${ic(f[0],32)}</div><div><b>${f[1]}</b><p class="mut">${f[2]}</p></div></div>`).join('')}</div></section>
  <section class="sx"><h2>Cómo comprar</h2>${[['Elegí tus productos','Navegá el catálogo y agregalos al carrito.'],['Completá tus datos','Escribí tu nombre, teléfono y dirección de entrega.'],['Enviá por WhatsApp','Se abre el chat con tu pedido listo.']].map((s,k)=>`<div class="stp"><div class="num">${k+1}</div><b>${s[0]}</b><p class="mut">${s[1]}</p></div>`).join('')}</section>
  <section class="sx"><h2>Opiniones</h2><div class="rvs">${hrv().length?hrv().slice(0,hLim).map(rvItem).join('')+(hrv().length>hLim?`<div class="rvm"><button class="chip" data-a="hrmore">Ver más opiniones (${hrv().length-hLim})</button></div>`:''):'<p class="mut">Todavía no hay opiniones. ¡Dejá la primera!</p>'}</div><div class="rvb"><button class="btn" data-a="rvopen">Dejar un comentario</button></div></section>
@@ -222,10 +236,10 @@ function admV(){if(!adm)return `<div class="c" style="margin:40px 0"><h1 style="
  if(tab=='ords'){const ok=S.ords.filter(o=>o.st!='Cancelado');h+=`<h2>Pedidos</h2><div class="two"><div class="sec"><span class="mut">Pedidos</span><div class="num2">${S.ords.length}</div></div><div class="sec"><span class="mut">Ventas</span><div class="num2" style="font-size:20px">${gs(ok.reduce((a,o)=>a+o.t,0))}</div></div></div>${S.ords.slice().sort((a,b)=>b.ts-a.ts).map(o=>`<div class="sec"><b>${esc(o.nm)}</b> <span class="mut">${new Date(o.ts).toLocaleString('es-PY',{dateStyle:'short',timeStyle:'short'})}</span><p class="mut" style="margin:4px 0">📞 ${esc(o.tel)} · ${esc(o.dir)}</p><div class="mut">${esc(o.it)}</div><div class="row" style="align-items:center;margin-top:8px"><b style="flex:1">${gs(o.t)}</b><select data-ost="${o.id}" style="width:auto;height:44px">${['Pendiente','Confirmado','Entregado','Cancelado'].map(s=>`<option${s==(o.st||'Pendiente')?' selected':''}>${s}</option>`).join('')}</select><button class="x" data-a="del" data-c="ords" data-id="${o.id}">${ic('trash')}</button></div></div>`).join('')||'<p class="mut">Todavía no hay pedidos. Se guardan acá cuando un cliente envía su pedido.</p>'}`}
  return h}
 const LGV=v=>{const L=LEG[v];return `<button class="back" data-a="back">← Volver</button><div class="legal"><h1 style="font-size:24px">${L[0]}</h1>${L[1].map(s=>`<h3>${s[0]}</h3><p>${s[1]}</p>`).join('')}</div>`};
-let pv='',hist=0;
+let pv='',hist=0,fw=0;const SP={},dp=x=>x?x=='catalogo'?1:2:0,IO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('pz',!e.isIntersecting)));
 function render(soft){if(S.prods.length){const n=S.cart.length;S.cart=S.cart.filter(c=>find(c.id)&&+c.q>0);if(S.cart.length!=n)save()}
-$('#lg').src=LOGO;$('#cb').innerHTML=ic('cart')+(S.cart.length?`<span class="cnt">${S.cart.reduce((a,c)=>a+c.q,0)}</span>`:'');$('#sb').innerHTML=ic('search');$('#wf').innerHTML='<span class="wi"></span>';{const fs=SET().fs==null?300000:+SET().fs;$('#pb').innerHTML=fs>0?ic('truck',16)+'<span>Envío gratis desde '+gs(fs)+'</span>':''}
- const v=location.hash.slice(1),M=$('#m');let h;
+if(!$('#lg').src)$('#lg').src=LOGO;$('#cb').innerHTML=ic('cart')+(S.cart.length?`<span class="cnt">${S.cart.reduce((a,c)=>a+c.q,0)}</span>`:'');$('#sb').innerHTML=ic('search');if(!$('#wf').firstChild)$('#wf').innerHTML='<span class="wi"></span>';{const fs=SET().fs==null?300000:+SET().fs;$('#pb').innerHTML=fs>0?ic('truck',16)+'<span>Envío gratis desde '+gs(fs)+'</span>':''}
+ const v=location.hash.slice(1),M=$('#m');let h;if(pv!==v&&!soft)SP[pv]=scrollY;
  if(soft&&(v=='catalogo'||v=='carrito'||v=='producto'&&!find(sel)||v=='admin'&&0)){if(v=='catalogo')grid();return}
  if(soft&&v=='admin'&&document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
  if(soft&&v=='producto'){prRefresh();return}
@@ -235,10 +249,11 @@ $('#lg').src=LOGO;$('#cb').innerHTML=ic('cart')+(S.cart.length?`<span class="cnt
  else if(v=='admin')h=admV();
  else if(LEG[v])h=LGV(v);
  else h=home();
- M.style.animation='none';M.offsetWidth;M.style.animation='';M.innerHTML=h;if($('#grid'))grid();
- const g=$('#gs');if(g)g.addEventListener('scroll',()=>{const k=Math.round(g.scrollLeft/g.clientWidth);document.querySelectorAll('#dts i').forEach((d,i)=>d.classList.toggle('on',i==k))},{passive:true});
- if(!soft||pv!=v)scrollTo(0,0);pv=v}
-const go=h=>{location.hash=h;if(!h)history.replaceState(null,'',location.pathname+location.search);render()};
+  const nav=pv!==v||!M.firstChild;if(nav||M._h!==h){M._h=h;M.innerHTML=h;if($('#grid'))grid();
+  const g=$('#gs');if(g){const ds=document.querySelectorAll('#dts i');let lk=-1;g.addEventListener('scroll',()=>{const k=Math.round(g.scrollLeft/g.clientWidth);if(k===lk)return;lk=k;ds.forEach((d,i)=>d.classList.toggle('on',i==k))},{passive:true})}}
+  if(nav){scrollTo(0,fw?0:SP[v]||0);if(M.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches)M.animate([{opacity:0,transform:`translate3d(${(dp(v)>=dp(pv)?1:-1)*28}px,0,0)`},{opacity:1,transform:'none'}],{duration:300,easing:'cubic-bezier(.22,1,.36,1)'})}
+  fw=0;pv=v;window.cutImgs&&cutImgs();document.querySelectorAll('.hero,.car').forEach(e=>IO.observe(e))}
+const go=h=>{fw=1;location.hash=h;if(!h)history.replaceState(null,'',location.pathname+location.search);render()};
 addEventListener('hashchange',()=>render());
 const g=i=>$(i)&&$(i).value.trim();
 const shrink=f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>ok(b),'image/jpeg',.82)};im.onerror=()=>ok(null);im.src=r.result};r.onerror=()=>ok(null);r.readAsDataURL(f)});
@@ -331,10 +346,11 @@ document.addEventListener('change',async e=>{const t=e.target;
  else if(t.id=='cf'&&t.files.length){const u=await upl([...t.files]);await saveSet({car:[...(SET().car||[]),...u].slice(0,12)})}
  else if(t.dataset.ost&&db){try{await db.collection('ords').doc(t.dataset.ost).update({st:t.value})}catch(x){toast('No se pudo actualizar')}}});
 document.addEventListener('input',e=>{if(e.target.id=='q'){q=e.target.value;lim=60;grid()}});
-addEventListener('scroll',()=>{const on=scrollY>500;$('#up').classList.toggle('on',on);$('#wf').classList.toggle('on',!on)},{passive:true});
+let upOn=0;const U=$('#up'),WF=$('#wf');addEventListener('scroll',()=>{const on=scrollY>500;if(on!==upOn){upOn=on;U.classList.toggle('on',on);WF.classList.toggle('on',!on)}},{passive:true});
+document.addEventListener('pointerdown',e=>{const c=e.target.closest('.card[data-a=open]');if(c){const p=find(c.dataset.id);p&&p.imgs&&p.imgs[0]&&precut(p.imgs[0])}},{passive:true});
+let hid=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hid=Date.now();else if(hid&&Date.now()-hid>30000)Object.keys(W).forEach(sync)});addEventListener('online',()=>Object.keys(W).forEach(sync));
 render();
 document.addEventListener('keydown',e=>{if(e.key=='Escape')rvClose();if(e.key=='Enter'&&e.target.id=='lp'){const b=$('[data-a=login]');b&&b.click()}});
-(async()=>{try{SB=supabase.createClient(SBU,SBK);db=mkdb();sub('products',v=>S.prods=v.sort(byN));sub('cats',v=>S.cats=v);sub('revs',v=>S.revs=v.sort((a,b)=>(a.ts||0)-(b.ts||0)));sub('reviews',v=>S.rv=v);
- db.collection('settings').doc('main').onSnapshot(s=>{S.set=s.data()||{};render(1)},()=>{});
+(async()=>{try{if(!window.supabase)await new Promise(ok=>{const e=$('#sbj');e.addEventListener('load',ok);e.addEventListener('error',ok)});SB=supabase.createClient(SBU,SBK);db=mkdb();['products','cats','revs','reviews','settings'].forEach(watchRT);
  const r=await SB.auth.getSession();await chkAdm(r.data.session)}catch(e){}})();
 </script></body></html>
