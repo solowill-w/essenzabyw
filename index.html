@@ -292,7 +292,7 @@ async function xlsExp(){try{await loadX();const h=['Código','Nombre','Categorí
 const loadZ=()=>window.JSZip?Promise.resolve():new Promise((ok,no)=>{const u=['https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'];let i=0;const go=()=>{if(i>=u.length)return no();const s=document.createElement('script');s.src=u[i++];s.onload=ok;s.onerror=()=>{s.remove();go()};document.head.appendChild(s)};go()});
 const ck=s=>{s=nz(String(s==null?'':s)).trim().replace(/\s+/g,'');return /^\d+$/.test(s)?String(+s):s};
 const same=(p,x)=>p.cod&&x.cod?ck(p.cod)==ck(x.cod):nz(p.n)==nz(x.n);
-const IMT={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif'};
+const IMT={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif'};
 async function zipRead(f){try{toast('Leyendo ZIP…');
  const byC={};S.prods.forEach(p=>{if(p.cod)byC[ck(p.cod)]=p});
  if(!Object.keys(byC).length)return toast('Tus productos no tienen código. Subí primero el Excel con la columna Código.');
