@@ -179,11 +179,24 @@ img[src*=".png"],img[src*=".webp"]{mix-blend-mode:normal!important}
 .pgm{display:none;flex:none;width:44px;height:44px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid var(--bd)}.pgm img{width:100%;height:100%;object-fit:contain}
 .pst{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap;font-weight:400}.pst img{width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid var(--bd);background:rgba(255,255,255,.06)}.pst img[src*=".png"],.pst img[src*=".webp"]{object-fit:contain;padding:2px;box-sizing:border-box}.pst i{font-style:normal;font-size:12.5px;color:var(--mut)}
 @keyframes pgs{to{transform:rotate(360deg)}}
+/* ===== FIX fotos admin: se ven completas, centradas y sin recorte ===== */
+.thumbs{gap:12px}
+.th{width:96px;height:96px;border-radius:16px;background:rgba(255,255,255,.08);display:grid;place-items:center}
+.th img,.th img[src]{width:100%;height:100%;object-fit:contain!important;padding:6px;box-sizing:border-box;mix-blend-mode:normal!important;display:block}
+.li.pl .t{width:76px;height:76px;border-radius:18px;background:rgba(255,255,255,.08);overflow:hidden;display:grid;place-items:center}
+.li.pl .t img,.li.pl .t img[src]{width:100%!important;height:100%!important;max-width:100%;max-height:100%;object-fit:contain!important;padding:6px!important;box-sizing:border-box;mix-blend-mode:normal!important;display:block}
+.li.pl .t svg{height:44px;width:auto}
+/* ===== FIX fotos JPG originales: completas, sin recorte ni mezcla con el fondo ===== */
+img[src*=".jpg"],img[src*=".jpeg"]{mix-blend-mode:normal!important;background:#fff;border-radius:18px}
+.gsl img[src*=".jpg"],.gsl img[src*=".jpeg"]{object-fit:contain;max-height:440px;filter:none}
+.ci img[src*=".jpg"],.ci img[src*=".jpeg"]{object-fit:contain!important}
+.li .t img[src*=".jpg"],.li .t img[src*=".jpeg"]{object-fit:contain!important}
+.pst img[src*=".jpg"],.pst img[src*=".jpeg"]{object-fit:contain}
 </style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){
 var LIB=null,Q=Promise.resolve(),MAXS=1000;
-function auto(){try{return localStorage.getItem('essAutoCut')!=='0'}catch(_){return true}}
+function auto(){try{return localStorage.getItem('essAutoCut3')!=='0'}catch(_){return true}}
 window.autoCut=auto;
-window.setAutoCut=function(v){try{localStorage.setItem('essAutoCut',v?'1':'0')}catch(_){}};
+window.setAutoCut=function(v){try{localStorage.setItem('essAutoCut3',v?'1':'0')}catch(_){}};
 function lib(){return LIB||(LIB=import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm').catch(function(e){LIB=null;throw e}))}
 function blobImg(b){return new Promise(function(ok,no){var u=URL.createObjectURL(b),i=new Image();i.onload=function(){URL.revokeObjectURL(u);ok(i)};i.onerror=function(){URL.revokeObjectURL(u);no(new Error('img'))};i.src=u})}
 function toBlob(c,t,q){return new Promise(function(ok){c.toBlob(function(b){ok(b)},t,q)})}
@@ -238,9 +251,31 @@ async function go(blob,cb){
  var jpg=await toBlob(c,'image/jpeg',.88);
  var orig={b:jpg,ext:'jpg',type:'image/jpeg',cut:false};
  try{
-  cb('ld',0);var m=await lib();cb('cut');var res=await m.removeBackground(jpg,{model:'isnet_quint8',output:{format:'image/png',quality:1},progress:function(k,c,t){if(String(k).indexOf('fetch')===0)cb('ld',t?c/t:0);else cb('cut')}});cb('ref');var ri=await blobImg(res),c2=document.createElement('canvas');
-  c2.width=w;c2.height=h;var x=c2.getContext('2d',{willReadFrequently:true});x.drawImage(ri,0,0,w,h);
-  var id=x.getImageData(0,0,w,h),r=refine(id.data,w,h);
+  cb('ld',0);var m=await lib();
+  /* modelo más preciso (fp16); si no carga, se usa el liviano */
+  var MODEL='isnet_fp16';
+  async function seg(bl){
+   var o=function(model){return m.removeBackground(bl,{model:model,output:{format:'image/png',quality:1},progress:function(k,c,t){if(String(k).indexOf('fetch')===0)cb('ld',t?c/t:0);else cb('cut')}})};
+   try{return await o(MODEL)}catch(e1){MODEL='isnet_quint8';return await o(MODEL)}
+  }
+  function alphaOf(img){var cc=document.createElement('canvas');cc.width=w;cc.height=h;var cx=cc.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0,w,h);return cx.getImageData(0,0,w,h).data}
+  cb('cut');
+  /* pasada 1: foto original */
+  var resA=await seg(jpg),imA=await blobImg(resA),aA=alphaOf(imA);
+  /* pasada 2: foto con las sombras levantadas, para que el frasco oscuro no se confunda con el fondo oscuro */
+  var cl=document.createElement('canvas');cl.width=w;cl.height=h;var xl=cl.getContext('2d',{willReadFrequently:true});xl.drawImage(c,0,0);
+  var dl=xl.getImageData(0,0,w,h),q2=dl.data,lut=new Uint8ClampedArray(256),ii;
+  for(ii=0;ii<256;ii++)lut[ii]=Math.round(255*Math.pow(ii/255,.45));
+  for(ii=0;ii<q2.length;ii+=4){q2[ii]=lut[q2[ii]];q2[ii+1]=lut[q2[ii+1]];q2[ii+2]=lut[q2[ii+2]]}
+  xl.putImageData(dl,0,0);
+  var aB=null;
+  try{var jl=await toBlob(cl,'image/jpeg',.88),resB=await seg(jl),imB=await blobImg(resB);aB=alphaOf(imB)}catch(eB){aB=null}
+  cb('ref');
+  /* se combinan las dos máscaras (la unión conserva todo el frasco) y se aplican sobre los píxeles ORIGINALES */
+  var c2=document.createElement('canvas');c2.width=w;c2.height=h;var x=c2.getContext('2d',{willReadFrequently:true});x.drawImage(c,0,0);
+  var id=x.getImageData(0,0,w,h),dd=id.data,u;
+  for(u=0;u<dd.length;u+=4){var va=aA[u+3];if(aB&&aB[u+3]>va)va=aB[u+3];dd[u+3]=va}
+  var r=refine(dd,w,h);
   /* seguridad: si borró casi todo, o no quitó nada, se conserva la foto original */
   if(!r||r.ratio<.03||r.ratio>.985||r.x1<r.x0||(r.x1-r.x0)<w*.08||(r.y1-r.y0)<h*.08)return orig;
   x.putImageData(id,0,0);
