@@ -129,6 +129,26 @@ a{color:var(--co2)}a:focus-visible,button:focus-visible,summary:focus-visible{ou
 .brs .chip{padding:9px 16px;font-size:14px;white-space:nowrap}
 .bc{opacity:.65;font-size:12px;margin-left:2px}
 .fab{width:44px;height:44px;opacity:.9}
+
+/* v3: imagen completa + selector de marcas */
+.pic{display:flex;align-items:center;justify-content:center;padding:10px;box-sizing:border-box}
+.pic img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
+.pic svg{height:92px;width:auto}
+.brs{display:block;margin:12px 0 0;padding:0;overflow:visible}
+.brh{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:0 16px;border-radius:16px;border:1px solid var(--bd);background:rgba(255,255,255,.06);color:var(--tx);font:inherit;cursor:pointer;text-align:left}
+.brh.open{border-color:var(--ac);box-shadow:0 0 0 3px rgba(74,201,227,.2)}
+.brh .brl{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ac)}
+.brh b{flex:1;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brh .brn{font-size:12px;color:var(--mut);background:rgba(255,255,255,.1);border-radius:99px;padding:2px 9px}
+.brc{width:9px;height:9px;border-right:2.5px solid var(--ac);border-bottom:2.5px solid var(--ac);transform:rotate(45deg) translateY(-2px);transition:transform .25s;flex:none}
+.brh.open .brc{transform:rotate(-135deg) translateY(-2px)}
+.brp{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:14px;max-height:46vh;overflow-y:auto;background:#0e3556;border:1px solid var(--bd);border-radius:18px;animation:cdi .25s ease}
+.brp[hidden]{display:none}
+.brp .chip{padding:9px 16px;font-size:14px}
+.brp .chip.on{background:linear-gradient(135deg,var(--co2),var(--co))}
+/* v4: imágenes nítidas (el fondo claro lavaba el mix-blend lighten) */
+.card{background:var(--cd)}
+.pic{background:rgba(255,255,255,.04)}
 </style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){var C={},SEL=[['.gsl img',900],['.li.cl .t img',260]],T=70,T2=T*T;
 function done(i){i.setAttribute('data-ok','1')}
 function job(src,S){var key=S+'|'+src;return C[key]||(C[key]=new Promise(function(ok){var m=new Image();m.crossOrigin='anonymous';m.decoding='async';m.onerror=function(){ok(null)};
@@ -162,7 +182,7 @@ const S={cats:[],prods:[],revs:[],ords:[],set:{},cart:[]};
 try{const k=JSON.parse(localStorage.getItem('essenza_cache_v3')||'null');if(k){S.prods=k.p||[];S.cats=k.c||[];S.set=k.s||{};S.revs=k.r||[];S.rv=k.v||[];S.hit=1}}catch(e){}
 setTimeout(()=>{if(!S.hit){S.hit=1;draw()}},2500);
 const SK=n=>'<div class="card sk"></div>'.repeat(n);let rq=0;const draw=()=>{rq||(rq=requestAnimationFrame(()=>{rq=0;render(1)}))};
-let db=null,adm=false,tab='prods',ed=null,IM=[],q='',cat='Todas',br='Todas',lim=60,sel=null,sz=null,shipSel='',rs=5,tm,authT=0;
+let db=null,adm=false,tab='prods',ed=null,IM=[],q='',cat='Todas',br='Todas',brOpen=false,lim=60,sel=null,sz=null,shipSel='',rs=5,tm,authT=0;
 try{S.cart=JSON.parse(localStorage.getItem('essenza_cart_v2'))||[]}catch(e){}
 const cartN=()=>S.cart.reduce((a,c)=>a+(find(c.id)?(+c.q||0):0),0);
 const save=()=>{try{localStorage.setItem('essenza_cart_v2',JSON.stringify(S.cart))}catch(e){}};
@@ -224,8 +244,9 @@ const NET={instagram:'Instagram',facebook:'Facebook',tiktok:'TikTok',youtube:'Yo
 function setG(g,h){const t=document.createElement('template');t.innerHTML=h;const old=new Map(),keep=new Set();[...g.children].forEach(c=>{if(c.dataset.id&&c.classList.contains('card'))old.set(c.dataset.id,c)});
  const L=[...t.content.children].map(n=>{const x=n.dataset.id&&old.get(n.dataset.id),r=x&&x.outerHTML===n.outerHTML?x:n;keep.add(r);return r});
  [...g.children].forEach(c=>{keep.has(c)||c.remove()});let r=g.firstChild;L.forEach(n=>{n===r?r=r.nextSibling:g.insertBefore(n,r)})}
-const brandOf=p=>{const m=String(p.d||'').match(/(?:^|\n)\s*marca\s*:\s*([^\n]+)/i);return(m?m[1]:String(p.n||'').trim().split(/\s+/)[0]||'').trim()};
-const brandsUI=()=>{const e=$('#brs');if(!e)return;if(cat!='Fragancias'){e.hidden=true;e.innerHTML='';return}const m=new Map();P().filter(p=>p.c=='Fragancias').forEach(p=>{const b=brandOf(p),k=nz(b);if(!k)return;const o=m.get(k)||{n:b,c:0};o.c++;m.set(k,o)});const L=[...m.values()].sort((a,b)=>a.n.localeCompare(b.n,'es',{sensitivity:'base'}));if(br!='Todas'&&!L.some(x=>nz(x.n)==nz(br)))br='Todas';e.hidden=!L.length;e.innerHTML=L.length?`<button class="chip ${br=='Todas'?'on':''}" data-a="brand" data-b="Todas">Todas las marcas</button>`+L.map(x=>`<button class="chip ${nz(x.n)==nz(br)?'on':''}" data-a="brand" data-b="${esc(x.n)}">${esc(x.n)} <span class="bc">${x.c}</span></button>`).join(''):''};
+const BRM=['Al Haramain','Al Rehab','Al Wataniah','Carolina Herrera','Paco Rabanne','Jean Paul Gaultier','Dolce & Gabbana','Dolce Gabbana','Giorgio Armani','Yves Saint Laurent','Calvin Klein','Hugo Boss','Ralph Lauren','Tom Ford','Maison Alhambra','Maison Francis Kurkdjian','Mont Blanc','Thierry Mugler','Issey Miyake','Elie Saab','Nina Ricci','Ariana Grande','Viktor & Rolf','Victoria Secret','Lady Million','Bond No 9','Jimmy Choo','Roberto Cavalli','Salvatore Ferragamo','Ermenegildo Zegna','Dsquared2','The Merchant of Venice','Le Labo','La Rive','Rave Now'],BRP=['al','el','la','le','de','du','dolce','jean','paco','giorgio','carolina','yves','calvin','hugo','ralph','tom','maison','mont','thierry','issey','elie','nina','ariana','viktor','victoria','jimmy','roberto','salvatore','ermenegildo','the'];
+const brandOf=p=>{const m=String(p.d||'').match(/(?:^|\n)\s*marca\s*:\s*([^\n]+)/i);if(m&&m[1].trim())return m[1].trim();const n=String(p.n||'').trim(),k=nz(n)+' ',f=BRM.find(b=>k.startsWith(nz(b)+' '));if(f)return f;const w=n.split(/\s+/);return(BRP.includes(nz(w[0]))&&w[1]?w[0]+' '+w[1]:w[0])||''};
+const brandsUI=()=>{const e=$('#brs');if(!e)return;if(cat!='Fragancias'){e.hidden=true;e.innerHTML='';return}const m=new Map();P().filter(p=>p.c=='Fragancias').forEach(p=>{const b=brandOf(p),k=nz(b);if(!k)return;const o=m.get(k)||{n:b,c:0};o.c++;m.set(k,o)});const L=[...m.values()].sort((a,b)=>a.n.localeCompare(b.n,'es',{sensitivity:'base'}));if(br!='Todas'&&!L.some(x=>nz(x.n)==nz(br)))br='Todas';e.hidden=!L.length;e.innerHTML=L.length?`<button type=\"button\" class=\"brh${brOpen?' open':''}\" data-a=\"brtog\" aria-expanded=\"${brOpen}\"><span class=\"brl\">Marca</span><b>${br=='Todas'?'Todas las marcas':esc(br)}</b><span class=\"brn\">${L.length}</span><i class=\"brc\"></i></button><div class=\"brp\"${brOpen?'':' hidden'}><button class=\"chip ${br=='Todas'?'on':''}\" data-a=\"brand\" data-b=\"Todas\">Todas</button>${L.map(x=>`<button class=\"chip ${nz(x.n)==nz(br)?'on':''}\" data-a=\"brand\" data-b=\"${esc(x.n)}\">${esc(x.n)} <span class=\"bc\">${x.c}</span></button>`).join('')}</div>`:''};
 const grid=()=>{const g=$('#grid');if(!g)return;brandsUI();const ws=nz(q).split(/\s+/).filter(Boolean),l=P().filter(p=>(cat=='Todas'||p.c==cat)&&(cat!='Fragancias'||br=='Todas'||nz(brandOf(p))==nz(br))&&ws.every(w=>nz(p.n+' '+p.c+' '+brandOf(p)).includes(w)));setG(g,!S.hit?SK(8):l.length?l.slice(0,lim).map(card).join('')+(l.length>lim?`<div style="grid-column:1/-1;text-align:center"><button class="chip" data-a="more">Ver más (${l.length-lim})</button></div>`:''):`<p class="mut" style="grid-column:1/-1;text-align:center;margin:30px 0">Sin resultados${q.trim()?` para “${esc(q.trim())}”`:''}.</p>`);const b=$('#fb');if(b)b.classList.toggle('on',cat!='Todas')};
 function descHTML(d){return '<div class="dsc" style="margin:12px 0 16px">'+String(d).split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^([^:]{1,40}):\s*(.*)$/);return m?`<div><b>${esc(m[1])}:</b> ${esc(m[2])}</div>`:`<div>${esc(l)}</div>`}).join('')+'</div>'}
 const CRC={};function home(){const ps=P(),F=ps.some(p=>p.f)?ps.filter(p=>p.f):ps,O=ps.filter(p=>p.o>p.p&&p.p),cp=ps.filter(p=>(p.imgs||[])[0]),ck=cp.map(p=>p.id+'|'+p.imgs[0]).join(','),cr=(CRC.k==ck?CRC.l:(CRC.k=ck,CRC.l=cp.map(p=>({id:p.id,n:p.n,u:p.imgs[0]})).sort(()=>Math.random()-.5))),ci=cr.length?(()=>{let l=cr.slice();while(l.length<8)l=l.concat(cr);return l.map(x=>`<div class=\"ci\" data-a=\"open\" data-id=\"${x.id}\" role=\"button\" aria-label=\"${esc(x.n)}\" style=\"cursor:pointer\"><img src=\"${esc(x.u)}\" alt=\"${esc(x.n)}\" loading=\"lazy\" decoding=\"async\"></div>`).join('')})():'';
@@ -349,8 +370,9 @@ document.addEventListener('click',async e=>{{const od=$('.lkp.open');if(od&&!e.t
  else if(a=='top')scrollTo({top:0,behavior:'smooth'});
  else if(a=='back')history.length>1&&hist?history.back():go('');
  else if(a=='fmenu'){fm.hidden=!fm.hidden}
- else if(a=='brand'){br=d.b;lim=60;grid()}
- else if(a=='cat'){cat=d.c;br='Todas';lim=60;if(location.hash=='#catalogo')grid();else go('catalogo');if(fm)fm.hidden=true}
+ else if(a=='brtog'){brOpen=!brOpen;brandsUI()}
+ else if(a=='brand'){br=d.b;brOpen=false;lim=60;grid()}
+ else if(a=='cat'){cat=d.c;br='Todas';brOpen=false;lim=60;if(location.hash=='#catalogo')grid();else go('catalogo');if(fm)fm.hidden=true}
  else if(a=='more'){lim+=60;grid()}
  else if(a=='open'){sel=d.id;sz=null;prs=5;prLim=5;hist=1;go('producto')}
  else if(a=='siz'){sz=d.c;document.querySelectorAll('[data-a=siz]').forEach(b=>b.classList.toggle('on',b.dataset.c==d.c))}
