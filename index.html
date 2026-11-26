@@ -687,6 +687,8 @@ document.addEventListener('keydown',e=>{if(e.key=='Escape')rvClose();if(e.key=='
 /* fix filtros: el menú de categorías quedaba debajo del selector de marcas */
 .sbar{z-index:8}.fm{z-index:9;background:#0e3556;opacity:1}
 .fm button{min-height:48px}
+/* fotos procesadas (blob:) sin mezcla 'lighten', que las teñía de azul */
+img[data-hf],img[src^="blob:"]{mix-blend-mode:normal!important;opacity:1!important}
 </style>
 <script>
 /* Quita el negro puro encerrado (el huequito del asa) de las fotos de frascos */
@@ -699,8 +701,8 @@ function fix(src){
   im.onload=function(){try{
    var k=Math.min(1,1000/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k);
    var cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,w,h);
-   var d=x.getImageData(0,0,w,h),a=d.data,N=w*h,opq=0,dark=new Uint8Array(N);
-   for(var i=0;i<N;i++){var o=i*4;if(a[o+3]>128){opq++;if(a[o]<=16&&a[o+1]<=16&&a[o+2]<=16)dark[i]=1}}
+   var d=x.getImageData(0,0,w,h),a=d.data,N=w*h,opq=0,dark=new Uint8Array(N),oy0=h,oy1=0;
+   for(var i=0;i<N;i++){var o=i*4;if(a[o+3]>128){opq++;var oy=(i/w)|0;if(oy<oy0)oy0=oy;if(oy>oy1)oy1=oy;if(a[o]<=16&&a[o+1]<=16&&a[o+2]<=16)dark[i]=1}}
    var seen=new Uint8Array(N),kill=[],st=[],ext=new Uint8Array(N);
    for(var e0=0;e0<N;e0++){var ex=e0%w,ey=(e0-ex)/w;if((ex==0||ey==0||ex==w-1||ey==h-1)&&a[e0*4+3]<=128&&!ext[e0]){ext[e0]=1;st.push(e0)}}
    while(st.length){var i=st.pop();var cx=i%w,cy=(i-cx)/w;var nb=[cx>0?i-1:-1,cx<w-1?i+1:-1,cy>0?i-w:-1,cy<h-1?i+w:-1];for(var q=0;q<4;q++){var n=nb[q];if(n>=0&&!ext[n]&&a[n*4+3]<=128){ext[n]=1;st.push(n)}}}
@@ -715,7 +717,7 @@ function fix(src){
       if(ext[n]){touch=true;continue}
       if(dark[n]&&!seen[n]){seen[n]=1;st.push(n)}}}
     var bw=x1-x0+1,bh=y1-y0+1,ar=comp.length/opq,fill=comp.length/(bw*bh),asp=bw/bh;
-    if(!touch&&ar>=.005&&ar<=.06&&fill>=.7&&asp>=.4&&asp<=2.5)kill.push(comp)}
+    var cyc=(y0+y1)/2;if(!touch&&ar>=.005&&ar<=.06&&fill>=.85&&asp>=.4&&asp<=2.5&&cyc<oy0+.42*(oy1-oy0))kill.push(comp)}
    if(!kill.length){res(null);return}
    var m=new Uint8Array(N);kill.forEach(function(c){c.forEach(function(i){m[i]=1})});
    for(var it=0;it<2;it++){var m2=m.slice();for(var i=0;i<N;i++){if(!m[i])continue;var cx=i%w,cy=(i-cx)/w;
