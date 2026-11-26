@@ -110,6 +110,25 @@ a{color:var(--co2)}a:focus-visible,button:focus-visible,summary:focus-visible{ou
 @keyframes rmu{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 .nps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.np{padding:10px 2px;min-width:0}.np small{font-size:11px}.lks{padding:4px 16px}.lks .li:last-child{border-bottom:0}body.isadm #wf,body.isadm #up{display:none!important}
 .lkp{position:relative;margin:8px 0 16px}.lkpb{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;min-height:58px;border-radius:16px;border:1.5px solid var(--bd);background:none;color:inherit;font:inherit;cursor:pointer}.lkp.open .lkpb{border-color:var(--co)}.lkpc{display:flex;align-items:center;gap:12px;font-weight:700}.lkpb>svg{flex:none;transition:transform .2s}.lkp.open .lkpb>svg{transform:rotate(180deg)}.lkpl{display:none;margin-top:8px;border:1.5px solid var(--bd);border-radius:16px;overflow:hidden;background:var(--cd)}.lkp.open .lkpl{display:block}.lkpo{width:100%;display:flex;align-items:center;gap:12px;padding:10px 14px;background:none;border:0;border-bottom:1px solid var(--bd);color:var(--mut);font:inherit;font-weight:600;cursor:pointer;text-align:left}.lkpo:last-child{border-bottom:0}.lkpo.on{color:var(--tx);background:rgba(255,120,80,.12)}
+
+/* mejoras visuales */
+.car{margin:18px -16px 6px}
+.cart{animation-duration:80s}
+.car:active .cart{animation-play-state:paused}
+.ci{width:150px;height:150px;margin-right:14px;border-radius:22px;background:linear-gradient(160deg,#12395d,#0b2a46);box-shadow:0 10px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);transition:transform .25s}
+.ci:active{transform:scale(.96)}
+.card{background:linear-gradient(180deg,#0f3556,#0b2a46);box-shadow:0 8px 22px rgba(0,0,0,.28);padding:12px 12px 16px;display:flex;flex-direction:column;text-align:center}
+.pic{height:150px;border-radius:16px;background:radial-gradient(circle at 50% 35%,rgba(74,201,227,.16),rgba(255,255,255,.03) 70%);margin-bottom:12px}
+.bn{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ac);margin-bottom:3px}
+.nm{min-height:44px;font-weight:600;font-size:15px;line-height:1.3;display:flex;align-items:center;justify-content:center}
+.pr{margin-top:auto;padding-top:8px;font-size:18px}
+.card.col{padding:22px 12px}
+.brs{display:flex;gap:8px;overflow-x:auto;margin:12px -16px 0;padding:2px 16px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.brs::-webkit-scrollbar{display:none}
+.brs[hidden]{display:none}
+.brs .chip{padding:9px 16px;font-size:14px;white-space:nowrap}
+.bc{opacity:.65;font-size:12px;margin-left:2px}
+.fab{width:44px;height:44px;opacity:.9}
 </style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){var C={},SEL=[['.gsl img',900],['.li.cl .t img',260]],T=70,T2=T*T;
 function done(i){i.setAttribute('data-ok','1')}
 function job(src,S){var key=S+'|'+src;return C[key]||(C[key]=new Promise(function(ok){var m=new Image();m.crossOrigin='anonymous';m.decoding='async';m.onerror=function(){ok(null)};
@@ -143,7 +162,7 @@ const S={cats:[],prods:[],revs:[],ords:[],set:{},cart:[]};
 try{const k=JSON.parse(localStorage.getItem('essenza_cache_v3')||'null');if(k){S.prods=k.p||[];S.cats=k.c||[];S.set=k.s||{};S.revs=k.r||[];S.rv=k.v||[];S.hit=1}}catch(e){}
 setTimeout(()=>{if(!S.hit){S.hit=1;draw()}},2500);
 const SK=n=>'<div class="card sk"></div>'.repeat(n);let rq=0;const draw=()=>{rq||(rq=requestAnimationFrame(()=>{rq=0;render(1)}))};
-let db=null,adm=false,tab='prods',ed=null,IM=[],q='',cat='Todas',lim=60,sel=null,sz=null,shipSel='',rs=5,tm,authT=0;
+let db=null,adm=false,tab='prods',ed=null,IM=[],q='',cat='Todas',br='Todas',lim=60,sel=null,sz=null,shipSel='',rs=5,tm,authT=0;
 try{S.cart=JSON.parse(localStorage.getItem('essenza_cart_v2'))||[]}catch(e){}
 const cartN=()=>S.cart.reduce((a,c)=>a+(find(c.id)?(+c.q||0):0),0);
 const save=()=>{try{localStorage.setItem('essenza_cart_v2',JSON.stringify(S.cart))}catch(e){}};
@@ -193,7 +212,7 @@ function rvModal(){let m=$('#rmo');if(!m){m=document.createElement('div');m.id='
  m.classList.add('on');document.documentElement.style.overflow='hidden'}
 const rvClose=()=>{const m=$('#rmo');if(m)m.classList.remove('on');document.documentElement.style.overflow=''};
 const pic=(p,s)=>(p.imgs||[])[0]?`<img src="${esc(p.imgs[0])}" alt="" loading="lazy" decoding="async">`:bot(s);
-const card=p=>`<div class="card" data-a="open" data-id="${p.id}">${p.o>p.p&&p.p?`<span class="badge">-${Math.round((1-p.p/p.o)*100)}%</span>`:''}<div class="pic">${pic(p,92)}</div><div class="nm">${esc(p.n)}</div><div class="pr">${gs(p.p)}</div>${p.o>p.p&&p.p?`<s>${gs(p.o)}</s>`:''}</div>`;
+const card=p=>`<div class="card" data-a="open" data-id="${p.id}">${p.o>p.p&&p.p?`<span class="badge">-${Math.round((1-p.p/p.o)*100)}%</span>`:''}<div class="pic">${pic(p,92)}</div>${p.c=='Fragancias'&&brandOf(p)?`<div class="bn">${esc(brandOf(p))}</div>`:''}<div class="nm">${esc(p.n)}</div><div class="pr">${gs(p.p)}</div>${p.o>p.p&&p.p?`<s>${gs(p.o)}</s>`:''}</div>`;
 const wa=(t,w)=>{if(!WA()){navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});return toast('Configurá el WhatsApp en el panel')}const o=$('#wo');o.classList.add('on');setTimeout(()=>o.classList.remove('on'),1600);window.open(`https://wa.me/${WA()}?text=${encodeURIComponent(t)}`,'_blank')};
 const cartT=()=>S.cart.reduce((a,c)=>a+c.q*((find(c.id)||{}).p||0),0);
 const shipZ=()=>SH().find(z=>z.n==shipSel);const FS=()=>{const v=SET().fs;return v==null?300000:(+v||0)};const freeS=()=>FS()>0&&cartT()>=FS();const shipC=z=>z?(freeS()?0:(+z.c||0)):0;const fsHint=()=>FS()>0?(freeS()?'<br>🎉 ¡Tu envío es gratis!':'<br>Te faltan <b>'+gs(FS()-cartT())+'</b> para envío gratis.'):'';
@@ -205,7 +224,9 @@ const NET={instagram:'Instagram',facebook:'Facebook',tiktok:'TikTok',youtube:'Yo
 function setG(g,h){const t=document.createElement('template');t.innerHTML=h;const old=new Map(),keep=new Set();[...g.children].forEach(c=>{if(c.dataset.id&&c.classList.contains('card'))old.set(c.dataset.id,c)});
  const L=[...t.content.children].map(n=>{const x=n.dataset.id&&old.get(n.dataset.id),r=x&&x.outerHTML===n.outerHTML?x:n;keep.add(r);return r});
  [...g.children].forEach(c=>{keep.has(c)||c.remove()});let r=g.firstChild;L.forEach(n=>{n===r?r=r.nextSibling:g.insertBefore(n,r)})}
-const grid=()=>{const g=$('#grid');if(!g)return;const ws=nz(q).split(/\s+/).filter(Boolean),l=P().filter(p=>(cat=='Todas'||p.c==cat)&&ws.every(w=>nz(p.n+' '+p.c).includes(w)));setG(g,!S.hit?SK(8):l.length?l.slice(0,lim).map(card).join('')+(l.length>lim?`<div style="grid-column:1/-1;text-align:center"><button class="chip" data-a="more">Ver más (${l.length-lim})</button></div>`:''):`<p class="mut" style="grid-column:1/-1;text-align:center;margin:30px 0">Sin resultados${q.trim()?` para “${esc(q.trim())}”`:''}.</p>`);const b=$('#fb');if(b)b.classList.toggle('on',cat!='Todas')};
+const brandOf=p=>{const m=String(p.d||'').match(/(?:^|\n)\s*marca\s*:\s*([^\n]+)/i);return(m?m[1]:String(p.n||'').trim().split(/\s+/)[0]||'').trim()};
+const brandsUI=()=>{const e=$('#brs');if(!e)return;if(cat!='Fragancias'){e.hidden=true;e.innerHTML='';return}const m=new Map();P().filter(p=>p.c=='Fragancias').forEach(p=>{const b=brandOf(p),k=nz(b);if(!k)return;const o=m.get(k)||{n:b,c:0};o.c++;m.set(k,o)});const L=[...m.values()].sort((a,b)=>a.n.localeCompare(b.n,'es',{sensitivity:'base'}));if(br!='Todas'&&!L.some(x=>nz(x.n)==nz(br)))br='Todas';e.hidden=!L.length;e.innerHTML=L.length?`<button class="chip ${br=='Todas'?'on':''}" data-a="brand" data-b="Todas">Todas las marcas</button>`+L.map(x=>`<button class="chip ${nz(x.n)==nz(br)?'on':''}" data-a="brand" data-b="${esc(x.n)}">${esc(x.n)} <span class="bc">${x.c}</span></button>`).join(''):''};
+const grid=()=>{const g=$('#grid');if(!g)return;brandsUI();const ws=nz(q).split(/\s+/).filter(Boolean),l=P().filter(p=>(cat=='Todas'||p.c==cat)&&(cat!='Fragancias'||br=='Todas'||nz(brandOf(p))==nz(br))&&ws.every(w=>nz(p.n+' '+p.c+' '+brandOf(p)).includes(w)));setG(g,!S.hit?SK(8):l.length?l.slice(0,lim).map(card).join('')+(l.length>lim?`<div style="grid-column:1/-1;text-align:center"><button class="chip" data-a="more">Ver más (${l.length-lim})</button></div>`:''):`<p class="mut" style="grid-column:1/-1;text-align:center;margin:30px 0">Sin resultados${q.trim()?` para “${esc(q.trim())}”`:''}.</p>`);const b=$('#fb');if(b)b.classList.toggle('on',cat!='Todas')};
 function descHTML(d){return '<div class="dsc" style="margin:12px 0 16px">'+String(d).split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^([^:]{1,40}):\s*(.*)$/);return m?`<div><b>${esc(m[1])}:</b> ${esc(m[2])}</div>`:`<div>${esc(l)}</div>`}).join('')+'</div>'}
 const CRC={};function home(){const ps=P(),F=ps.some(p=>p.f)?ps.filter(p=>p.f):ps,O=ps.filter(p=>p.o>p.p&&p.p),cp=ps.filter(p=>(p.imgs||[])[0]),ck=cp.map(p=>p.id+'|'+p.imgs[0]).join(','),cr=(CRC.k==ck?CRC.l:(CRC.k=ck,CRC.l=cp.map(p=>({id:p.id,n:p.n,u:p.imgs[0]})).sort(()=>Math.random()-.5))),ci=cr.length?(()=>{let l=cr.slice();while(l.length<8)l=l.concat(cr);return l.map(x=>`<div class=\"ci\" data-a=\"open\" data-id=\"${x.id}\" role=\"button\" aria-label=\"${esc(x.n)}\" style=\"cursor:pointer\"><img src=\"${esc(x.u)}\" alt=\"${esc(x.n)}\" loading=\"lazy\" decoding=\"async\"></div>`).join('')})():'';
  return `<div class="c"><div class="hero"><div class="eb">BOUTIQUE DE BELLEZA Y CUIDADO PERSONAL</div><h1>Fragancias exclusivas, tratamientos faciales y cuidados capilares</h1><p class="mut">De las marcas más exclusivas del mundo. Una selección de productos 100% originales, con asesoramiento experto y envíos a todo el país.</p><div class="row"><button class="btn" data-a="go" data-h="catalogo">Ver catálogo</button></div></div>${ci?`<div class="car"><div class="cart">${ci+ci}</div></div>`:''}
@@ -245,7 +266,7 @@ if(!$('#lg').src)$('#lg').src=LOGO;$('#cb').innerHTML=ic('cart')+(S.cart.length?
  if(soft&&(v=='catalogo'||v=='carrito'||v=='producto'&&!find(sel)||v=='admin'&&0)){if(v=='catalogo')grid();return}
  if(soft&&v=='admin'&&document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
  if(soft&&v=='producto'){prRefresh();return}
- if(v=='catalogo')h=`<h1 style="text-align:center;font-size:24px">Catálogo</h1><div class="sbar"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="Buscar fragancias, rostro, cabello…" value="${esc(q)}"><button class="ib fb" id="fb" data-a="fmenu" aria-label="Filtrar">${ic('filter',22)}</button><div class="fm" id="fm" hidden>${['Todas',...CATS()].map(c=>`<button class="${c==cat?'on':''}" data-a="cat" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div></div><div class="grid" id="grid"></div>`;
+ if(v=='catalogo')h=`<h1 style="text-align:center;font-size:24px">Catálogo</h1><div class="sbar"><input id="q" type="text" inputmode="search" autocomplete="off" placeholder="Buscar producto o marca…" value="${esc(q)}"><button class="ib fb" id="fb" data-a="fmenu" aria-label="Filtrar">${ic('filter',22)}</button><div class="fm" id="fm" hidden>${['Todas',...CATS()].map(c=>`<button class="${c==cat?'on':''}" data-a="cat" data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div></div><div class="brs" id="brs" hidden></div><div class="grid" id="grid"></div>`;
  else if(v=='producto'&&find(sel))h=prodV(find(sel));
  else if(v=='carrito')h=cartV();
  else if(v=='admin')h=admV();
@@ -328,7 +349,8 @@ document.addEventListener('click',async e=>{{const od=$('.lkp.open');if(od&&!e.t
  else if(a=='top')scrollTo({top:0,behavior:'smooth'});
  else if(a=='back')history.length>1&&hist?history.back():go('');
  else if(a=='fmenu'){fm.hidden=!fm.hidden}
- else if(a=='cat'){cat=d.c;lim=60;if(location.hash=='#catalogo')grid();else go('catalogo');if(fm)fm.hidden=true}
+ else if(a=='brand'){br=d.b;lim=60;grid()}
+ else if(a=='cat'){cat=d.c;br='Todas';lim=60;if(location.hash=='#catalogo')grid();else go('catalogo');if(fm)fm.hidden=true}
  else if(a=='more'){lim+=60;grid()}
  else if(a=='open'){sel=d.id;sz=null;prs=5;prLim=5;hist=1;go('producto')}
  else if(a=='siz'){sz=d.c;document.querySelectorAll('[data-a=siz]').forEach(b=>b.classList.toggle('on',b.dataset.c==d.c))}
