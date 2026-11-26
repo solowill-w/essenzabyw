@@ -128,7 +128,7 @@ a{color:var(--co2)}a:focus-visible,button:focus-visible,summary:focus-visible{ou
 .brs[hidden]{display:none}
 .brs .chip{padding:9px 16px;font-size:14px;white-space:nowrap}
 .bc{opacity:.65;font-size:12px;margin-left:2px}
-.fab{width:44px;height:44px;opacity:.9}
+.fab{width:44px;height:44px}.fab.on{opacity:.9}
 
 /* v3: imagen completa + selector de marcas */
 .pic{display:flex;align-items:center;justify-content:center;padding:10px;box-sizing:border-box}
@@ -198,6 +198,7 @@ img[src*=".jpg"],img[src*=".jpeg"]{mix-blend-mode:normal!important;background:#f
 .ci img,.ci img[src]{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;padding:12px!important;box-sizing:border-box;mix-blend-mode:normal!important;background:none!important;border-radius:0!important;display:block}
 .ci img[src*=".jpg"],.ci img[src*=".jpeg"]{background:#fff!important;border-radius:22px!important;padding:8px!important}
 #up{display:none!important}
+#wf,#wf:not(.on){transform:none!important}#wf{transition:opacity .2s!important}#wf:not(.on){opacity:0!important;visibility:hidden!important}
 </style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){
 var LIB=null,Q=Promise.resolve(),MAXS=1000;
 function auto(){try{return localStorage.getItem('essAutoCut3')!=='0'}catch(_){return true}}
