@@ -192,6 +192,12 @@ img[src*=".jpg"],img[src*=".jpeg"]{mix-blend-mode:normal!important;background:#f
 .ci img[src*=".jpg"],.ci img[src*=".jpeg"]{object-fit:contain!important}
 .li .t img[src*=".jpg"],.li .t img[src*=".jpeg"]{object-fit:contain!important}
 .pst img[src*=".jpg"],.pst img[src*=".jpeg"]{object-fit:contain}
+/* ===== FIX: sin botón flotante de WhatsApp (queda solo el punto naranja de subir) ===== */
+/* ===== FIX carrusel del inicio: frasco completo y centrado ===== */
+.ci{display:grid;place-items:center}
+.ci img,.ci img[src]{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;padding:12px!important;box-sizing:border-box;mix-blend-mode:normal!important;background:none!important;border-radius:0!important;display:block}
+.ci img[src*=".jpg"],.ci img[src*=".jpeg"]{background:#fff!important;border-radius:22px!important;padding:8px!important}
+#up{display:none!important}
 </style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){
 var LIB=null,Q=Promise.resolve(),MAXS=1000;
 function auto(){try{return localStorage.getItem('essAutoCut3')!=='0'}catch(_){return true}}
@@ -594,7 +600,12 @@ document.addEventListener('change',async e=>{const t=e.target;
  else if(t.id=='cf'&&t.files.length){const u=await upl([...t.files]);await saveSet({car:[...(SET().car||[]),...u].slice(0,12)})}
  else if(t.dataset.ost&&db){try{await db.collection('ords').doc(t.dataset.ost).update({st:t.value})}catch(x){toast('No se pudo actualizar')}}});
 document.addEventListener('input',e=>{if(e.target.id=='q'){q=e.target.value;lim=60;grid()}});
-let upOn=0;const U=$('#up'),WF=$('#wf');addEventListener('scroll',()=>{const on=scrollY>500;if(on!==upOn){upOn=on;U.classList.toggle('on',on);WF.classList.toggle('on',!on)}},{passive:true});
+const U=$('#up'),WF=$('#wf');
+/* WhatsApp flotante: solo en el menú principal, visible desde que abre. Al llegar abajo (donde está "Hablar por WhatsApp") se oculta. Sin botón naranja de subir. */
+function updFab(){const home=!location.hash||location.hash=='#',b=document.querySelector('button.btn[data-a=hi]'),atEnd=!!b&&b.getBoundingClientRect().top<innerHeight-10;let wf=false,up=false;
+ wf=home&&!atEnd;up=false
+ U.classList.toggle('on',up);WF.classList.toggle('on',wf)}
+addEventListener('scroll',updFab,{passive:true});addEventListener('hashchange',updFab);addEventListener('resize',updFab);setInterval(updFab,300);updFab();
 document.addEventListener('pointerdown',e=>{const c=e.target.closest('.card[data-a=open]');if(c){const p=find(c.dataset.id);p&&p.imgs&&p.imgs[0]&&precut(p.imgs[0])}},{passive:true});
 let hid=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hid=Date.now();else if(hid&&Date.now()-hid>30000)Object.keys(W).forEach(sync)});addEventListener('online',()=>Object.keys(W).forEach(sync));
 render();
