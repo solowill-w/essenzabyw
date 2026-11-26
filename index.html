@@ -151,22 +151,90 @@ a{color:var(--co2)}a:focus-visible,button:focus-visible,summary:focus-visible{ou
 /* v4: imágenes nítidas (el fondo claro lavaba el mix-blend lighten) */
 .card{background:var(--cd)}
 .pic{background:rgba(255,255,255,.04)}
-</style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){var C={},SEL=[],T=70,T2=T*T;
-function done(i){i.setAttribute('data-ok','1')}
-function job(src,S){var key=S+'|'+src;return C[key]||(C[key]=new Promise(function(ok){var m=new Image();m.crossOrigin='anonymous';m.decoding='async';m.onerror=function(){ok(null)};
-m.onload=function(){try{var r=Math.min(1,S/Math.max(m.naturalWidth,m.naturalHeight)),w=Math.max(1,Math.round(m.naturalWidth*r)),h=Math.max(1,Math.round(m.naturalHeight*r)),cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(m,0,0,w,h);var im=x.getImageData(0,0,w,h),d=im.data,N=w*h,cs=[0,w-1,(h-1)*w,N-1],br=0,bg=0,bb=0;
-cs.forEach(function(k){br+=d[k*4];bg+=d[k*4+1];bb+=d[k*4+2]});br/=4;bg/=4;bb/=4;
-function ds(o){var a=d[o]-br,b=d[o+1]-bg,c=d[o+2]-bb;return a*a+b*b+c*c}
-if(cs.some(function(k){return ds(k*4)>1600})||d[3]<250){ok(null);return}
-var seen=new Uint8Array(N),q=new Int32Array(N),n=0,t=0;
-function add(k){if(seen[k]||ds(k*4)>T2)return;seen[k]=1;q[t++]=k}
-for(var a=0;a<w;a++){add(a);add((h-1)*w+a)}for(var b=0;b<h;b++){add(b*w);add(b*w+w-1)}
-while(n<t){var k=q[n++],a=k%w;d[k*4+3]=0;if(a<w-1)add(k+1);if(a>0)add(k-1);if(k>=w)add(k-w);if(k<N-w)add(k+w)}
-for(var k=0;k<N;k++){if(seen[k])continue;var a=k%w;if((a>0&&seen[k-1])||(a<w-1&&seen[k+1])||(k>=w&&seen[k-w])||(k<N-w&&seen[k+w])){var e=Math.sqrt(ds(k*4));if(e<T*1.8)d[k*4+3]=Math.round(255*Math.max(0,(e-T)/(T*.8)))}}
-x.putImageData(im,0,0);cv.toBlob(function(bl){ok(bl?URL.createObjectURL(bl):null)},'image/png')}catch(e){ok(null)}};m.src=src}))}
-function cut(i,S){var src=i.getAttribute('src');i.setAttribute('data-cd','1');if(!src||/^(data|blob):/.test(src)){done(i);return}job(src,S).then(function(u){if(u)i.src=u;done(i)})}
-window.cutImgs=function(){SEL.forEach(function(p){var l=document.querySelectorAll(p[0]+':not([data-cd])');for(var k=0;k<l.length;k++)cut(l[k],p[1])})};
-window.precut=function(u){u&&job(u,900)}})();</script></head><body>
+
+/* v6: recorte con IA al subir. Las fotos recortadas (png/webp) NO usan mix-blend (borraba lo oscuro del frasco) */
+img[src*=".png"],img[src*=".webp"]{mix-blend-mode:normal!important}
+.ci img[src*=".png"],.ci img[src*=".webp"],.li .t img[src*=".png"],.li .t img[src*=".webp"]{object-fit:contain;padding:6px;box-sizing:border-box}
+.th button.ct{top:auto;bottom:3px;right:3px;font-size:12px}
+</style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){
+var LIB=null,Q=Promise.resolve(),MAXS=1000;
+function auto(){try{return localStorage.getItem('essAutoCut')!=='0'}catch(_){return true}}
+window.autoCut=auto;
+window.setAutoCut=function(v){try{localStorage.setItem('essAutoCut',v?'1':'0')}catch(_){}};
+function lib(){return LIB||(LIB=import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm').catch(function(e){LIB=null;throw e}))}
+function blobImg(b){return new Promise(function(ok,no){var u=URL.createObjectURL(b),i=new Image();i.onload=function(){URL.revokeObjectURL(u);ok(i)};i.onerror=function(){URL.revokeObjectURL(u);no(new Error('img'))};i.src=u})}
+function toBlob(c,t,q){return new Promise(function(ok){c.toBlob(function(b){ok(b)},t,q)})}
+function scaled(im){var k=Math.min(1,MAXS/Math.max(im.naturalWidth||im.width,im.naturalHeight||im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round((im.naturalWidth||im.width)*k));c.height=Math.max(1,Math.round((im.naturalHeight||im.height)*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c}
+
+/* Limpia la máscara de la IA: quita manchas sueltas, rellena huecos interiores
+   (así nunca se borran partes oscuras o transparentes DENTRO del frasco) y suaviza el borde. */
+function refine(d,w,h){
+ var N=w*h,thr=128,lab=new Int32Array(N),q=new Int32Array(N),sizes=[0],nl=0,i,k,s,t,n,a,l;
+ for(i=0;i<N;i++){if(lab[i]||d[i*4+3]<thr)continue;nl++;s=0;t=0;n=0;q[t++]=i;lab[i]=nl;
+  while(n<t){k=q[n++];s++;a=k%w;
+   if(a<w-1&&!lab[k+1]&&d[(k+1)*4+3]>=thr){lab[k+1]=nl;q[t++]=k+1}
+   if(a>0&&!lab[k-1]&&d[(k-1)*4+3]>=thr){lab[k-1]=nl;q[t++]=k-1}
+   if(k>=w&&!lab[k-w]&&d[(k-w)*4+3]>=thr){lab[k-w]=nl;q[t++]=k-w}
+   if(k<N-w&&!lab[k+w]&&d[(k+w)*4+3]>=thr){lab[k+w]=nl;q[t++]=k+w}}
+  sizes[nl]=s}
+ var mx=0;for(l=1;l<=nl;l++)if(sizes[l]>mx)mx=sizes[l];
+ if(!mx)return null;
+ var keep=new Uint8Array(nl+1);for(l=1;l<=nl;l++)keep[l]=sizes[l]>=mx*.08?1:0;
+ var sub=new Uint8Array(N);for(i=0;i<N;i++)if(lab[i]&&keep[lab[i]])sub[i]=1;
+ /* huecos: todo lo no alcanzable desde el borde pasa a ser sujeto */
+ var out=new Uint8Array(N);t=0;n=0;
+ function ad(k){if(!sub[k]&&!out[k]){out[k]=1;q[t++]=k}}
+ for(a=0;a<w;a++){ad(a);ad((h-1)*w+a)}for(k=0;k<h;k++){ad(k*w);ad(k*w+w-1)}
+ while(n<t){k=q[n++];a=k%w;if(a<w-1)ad(k+1);if(a>0)ad(k-1);if(k>=w)ad(k-w);if(k<N-w)ad(k+w)}
+ var fin=new Uint8Array(N),cnt=0;
+ for(i=0;i<N;i++)if(!out[i]){fin[i]=1;cnt++}
+ var al=new Uint8Array(N);
+ for(i=0;i<N;i++){if(!fin[i]){al[i]=0;continue}a=i%w;
+  var edge=(a>0&&!fin[i-1])||(a<w-1&&!fin[i+1])||(i>=w&&!fin[i-w])||(i<N-w&&!fin[i+w]);
+  al[i]=edge?Math.max(thr,d[i*4+3]):255}
+ /* suavizado 3x3 del canal alfa (el interior queda 255, el exterior 0) */
+ var x0=w,y0=h,x1=-1,y1=-1,y,x,sum,dy,dx,yy,xx;
+ for(y=0;y<h;y++)for(x=0;x<w;x++){i=y*w+x;
+  if(al[i]===255||al[i]===0){var near=false;
+   if(al[i]===255){near=x>0&&!fin[i-1]||x<w-1&&!fin[i+1]||y>0&&!fin[i-w]||y<h-1&&!fin[i+w]}
+   else{near=x>0&&fin[i-1]||x<w-1&&fin[i+1]||y>0&&fin[i-w]||y<h-1&&fin[i+w]}
+   if(!near){d[i*4+3]=al[i];if(al[i]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}continue}}
+  sum=0;for(dy=-1;dy<=1;dy++)for(dx=-1;dx<=1;dx++){yy=y+dy;xx=x+dx;sum+=(yy<0||yy>=h||xx<0||xx>=w)?0:al[yy*w+xx]}
+  var v=Math.round(sum/9);d[i*4+3]=v;if(v>8){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}}
+ return{ratio:cnt/N,x0:x0,y0:y0,x1:x1,y1:y1}
+}
+window._refineCut=refine;
+
+function run(blob,force){
+ return (Q=Q.then(function(){return go(blob)},function(){return go(blob)}));
+}
+async function go(blob){
+ var im=await blobImg(blob),c=scaled(im),w=c.width,h=c.height;
+ var jpg=await toBlob(c,'image/jpeg',.88);
+ var orig={b:jpg,ext:'jpg',type:'image/jpeg',cut:false};
+ try{
+  var m=await lib(),res=await m.removeBackground(jpg,{model:'isnet_quint8',output:{format:'image/png',quality:1}}),ri=await blobImg(res),c2=document.createElement('canvas');
+  c2.width=w;c2.height=h;var x=c2.getContext('2d',{willReadFrequently:true});x.drawImage(ri,0,0,w,h);
+  var id=x.getImageData(0,0,w,h),r=refine(id.data,w,h);
+  /* seguridad: si borró casi todo, o no quitó nada, se conserva la foto original */
+  if(!r||r.ratio<.03||r.ratio>.985||r.x1<r.x0||(r.x1-r.x0)<w*.08||(r.y1-r.y0)<h*.08)return orig;
+  x.putImageData(id,0,0);
+  var pad=Math.round(Math.max(w,h)*.03),sx=Math.max(0,r.x0-pad),sy=Math.max(0,r.y0-pad),sw=Math.min(w,r.x1+pad+1)-sx,sh=Math.min(h,r.y1+pad+1)-sy,c3=document.createElement('canvas');
+  c3.width=sw;c3.height=sh;c3.getContext('2d').drawImage(c2,sx,sy,sw,sh,0,0,sw,sh);
+  var pb=await toBlob(c3,'image/webp',.92),ext='webp';
+  if(!pb||pb.type!=='image/webp'){pb=await toBlob(c3,'image/png');ext='png'}
+  if(!pb)return orig;
+  return{b:pb,ext:ext,type:pb.type,cut:true}
+ }catch(e){console.warn('recorte IA falló, se usa la foto original',e);return orig}
+}
+/* prep(file,force): devuelve {b,ext,type,cut} listo para subir */
+window.prepImg=function(f,force){
+ if(!force&&!auto())return blobImg(f).then(function(im){var c=scaled(im);return toBlob(c,'image/jpeg',.82)}).then(function(b){return b&&{b:b,ext:'jpg',type:'image/jpeg',cut:false}}).catch(function(){return null});
+ return run(f).catch(function(){return null})
+};
+})();
+
+window.cutImgs=function(){};window.precut=function(){};</script></head><body>
 <svg width="0" height="0" style="position:absolute"><defs><symbol id="bt" viewBox="0 0 120 150"><rect x="47" y="2" width="26" height="16" rx="4" fill="currentColor"/><rect x="42" y="20" width="36" height="5" fill="currentColor"/><rect x="44" y="25" width="32" height="18" fill="currentColor"/><path d="M38 44h44l8 8H30z" fill="currentColor"/><path d="M12 54l16-14h64l16 14v64l-10 10H22l-10-10z" fill="currentColor"/><path d="M28 56h64l8 6-4 52H24l-4-52z" fill="#061a2f"/><path d="M26 82q22-6 40 4t32 0l-3 26H29z" fill="currentColor" opacity=".75"/></symbol></defs></svg>
 <div id="pb"></div><header><div class="logo" data-a="logo"><img id="lg" class="lg" alt="Essenza"><span style="line-height:1">ESSENZA<small style="display:block;font:500 9px/1 'Bricolage Grotesque',sans-serif;letter-spacing:.36em;color:var(--ac);margin-top:6px">FRAGANCIAS & BELLEZA</small></span></div><button class="ib" data-a="go" data-h="catalogo" aria-label="Buscar" id="sb"></button><button class="ib" data-a="go" data-h="carrito" aria-label="Carrito" id="cb"></button></header>
 <main id="m"></main><main id="m2" class="off"></main><div id="ts"></div><div id="wo"><div><div class="spn"></div><b style="font-size:18px">Abriendo WhatsApp…</b></div></div>
@@ -266,12 +334,12 @@ function prodV(p){const L=p.imgs||[],szs=p.sz||[];sz=sz||szs[0]||null;
 function cartV(){const it=S.cart.map((c,k)=>({c,k,p:find(c.id)})).filter(x=>x.p);
  if(!it.length)return `<button class="back" data-a="back">← Volver</button><h1>Tu carrito</h1><p class="mut">Tu carrito está vacío.</p><button class="btn" data-a="go" data-h="catalogo">Ver catálogo</button>`;
  return `<button class="back" data-a="back">← Volver</button><h1>Tu carrito</h1>${it.map(x=>`<div class="li cl"><div class="t">${pic(x.p,40)}</div><b>${esc(x.p.n)}<br><span class="mut" style="font-weight:400;font-size:14px">${esc(x.c.sz||'')}${x.c.sz?' · ':''}x${x.c.q} · ${gs(x.p.p*x.c.q)}</span></b><button class="x" data-a="rm" data-k="${x.k}" aria-label="Quitar">${ic('trash')}</button></div>`).join('')}${SH().length?`<h2>Envío</h2><div class="sec"><label class="fl">Ciudad o país de envío<select id="sh"><option value="">Elegí un destino</option>${SH().map(z=>`<option value="${esc(z.n)}"${z.n==shipSel?' selected':''}>${esc(z.n)}</option>`).join('')}</select></label><div id="shi" class="mut" style="line-height:1.6">${shipTxt()}</div></div>`:''}<h2 id="ct">${totTxt()}</h2><input id="nm" placeholder="Nombre" autocomplete="name"><br><br><input id="tel" placeholder="Teléfono" inputmode="tel"><br><br><input id="dir" placeholder="Dirección de entrega" autocomplete="street-address"><br><br><button class="btn g w" data-a="send">Enviar pedido por WhatsApp</button>`}
-const thumbs=()=>IM.map((u,k)=>`<div class="th"><img src="${esc(u)}" alt=""><button data-a="rmi" data-k="${k}" aria-label="Quitar">×</button></div>`).join('');
+const thumbs=()=>IM.map((u,k)=>`<div class="th"><img src="${esc(u)}" alt=""><button data-a="rmi" data-k="${k}" aria-label="Quitar">×</button>${/\.(png|webp)(\?|$)/i.test(u)?'':`<button class="ct" data-a="cut" data-k="${k}" aria-label="Quitar fondo">✂</button>`}</div>`).join('')+(IM.length?'<button type="button" class="chip" style="width:100%;color:#ff8a80" data-a="clrim">Borrar todas las fotos</button>':'');
 const fld=(l,id,v,ph,t)=>`<label class="fl">${l}<input id="${id}" value="${esc(v||'')}" placeholder="${esc(ph||'')}" ${t||''}></label>`;
 function admV(){if(!adm)return `<div class="c" style="margin:40px 0"><h1 style="font-size:24px">Acceso al panel</h1><p class="mut">Ingresá con tu correo y contraseña de administrador.</p><div class="sec">${fld('Correo','le','','tucorreo@ejemplo.com','type="email" autocomplete="username" inputmode="email"')}${fld('Contraseña','lp','','','type="password" autocomplete="current-password"')}<button class="btn w" data-a="login">Entrar</button></div><button class="back" data-a="go" data-h="">← Volver a la tienda</button></div>`;
  const T=[['prods','box'],['xls','xls'],['cats','tag'],['web','home'],['links','globe'],['ship','truck'],['revs','star'],['rv','chat'],['ords','bag']];let h=`<h1 style="font-size:24px">Panel de Essenza</h1><div class="tabs">${T.map(t=>`<button class="${tab==t[0]?'on':''}" data-a="tab" data-t="${t[0]}">${ic(t[1])}</button>`).join('')}</div>`;
  if(!db)h+='<p class="mut">La base de datos no está disponible en esta vista.</p>';
- if(tab=='prods'){const e=S.prods.find(p=>p.id==ed)||{};h+=`<h2>${ed?'Editar producto':'Nuevo producto'}</h2><div class="sec"><div class="two"><label class="fl">Categoría<select id="pc">${CATS().map(c=>`<option ${c==e.c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>${fld('Tamaños (coma)','psz',(e.sz||[]).join(', '),'50 ml, 100 ml')}</div>${fld('Nombre','pn',e.n)}<label class="fl">Descripción<textarea id="pds" rows="3" placeholder="Marca: … / Notas: …">${esc(e.d||'')}</textarea></label><div class="two">${fld('Precio Gs.','pp',e.p||'','','inputmode="numeric"')}${fld('Precio anterior','po',e.o||'','','inputmode="numeric"')}</div><input id="pf" type="file" accept="image/*" multiple hidden><label for="pf" class="upb">${ic('upload',22)}Subir fotos</label><div id="pv" class="thumbs">${(IM=(e.imgs||[]).slice(),thumbs())}</div><label class="chk"><input type="checkbox" id="pd" ${e.f?'checked':''}><span>Destacado en inicio</span></label></div><button class="btn w" data-a="mkp">${ed?'Guardar cambios':'Agregar producto'}</button>${ed?'<br><br><button class="chip" style="width:100%" data-a="cancel">Cancelar</button>':''}<h2>Productos cargados</h2>${S.prods.map(p=>`<div class="li"><div class="t">${pic(p,40)}</div><b>${esc(p.n)}<br><span class="mut" style="font-weight:400;font-size:14px">${p.cod?'#'+esc(p.cod)+' · ':''}${gs(p.p)}</span></b><button class="x" data-a="edp" data-id="${p.id}">${ic('edit')}</button><button class="x" data-a="del" data-c="products" data-id="${p.id}">${ic('trash')}</button></div>`).join('')||'<p class="mut">Todavía no cargaste productos. Los de ejemplo se ocultan al cargar el primero.</p>'}`}
+ if(tab=='prods'){const e=S.prods.find(p=>p.id==ed)||{};h+=`<h2>${ed?'Editar producto':'Nuevo producto'}</h2><div class="sec"><div class="two"><label class="fl">Categoría<select id="pc">${CATS().map(c=>`<option ${c==e.c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>${fld('Tamaños (coma)','psz',(e.sz||[]).join(', '),'50 ml, 100 ml')}</div>${fld('Nombre','pn',e.n)}<label class="fl">Descripción<textarea id="pds" rows="3" placeholder="Marca: … / Notas: …">${esc(e.d||'')}</textarea></label><div class="two">${fld('Precio Gs.','pp',e.p||'','','inputmode="numeric"')}${fld('Precio anterior','po',e.o||'','','inputmode="numeric"')}</div><input id="pf" type="file" accept="image/*" multiple hidden><label class="chk" style="margin-bottom:12px"><input type="checkbox" id="ac" ${autoCut()?'checked':''}><span>Quitar fondo automáticamente</span></label><label for="pf" class="upb">${ic('upload',22)}Subir fotos</label><div id="pv" class="thumbs">${(IM=(e.imgs||[]).slice(),thumbs())}</div><label class="chk"><input type="checkbox" id="pd" ${e.f?'checked':''}><span>Destacado en inicio</span></label></div><button class="btn w" data-a="mkp">${ed?'Guardar cambios':'Agregar producto'}</button>${ed?'<br><br><button class="chip" style="width:100%" data-a="cancel">Cancelar</button>':''}<h2>Productos cargados</h2>${S.prods.map(p=>`<div class="li"><div class="t">${pic(p,40)}</div><b>${esc(p.n)}<br><span class="mut" style="font-weight:400;font-size:14px">${p.cod?'#'+esc(p.cod)+' · ':''}${gs(p.p)}</span></b><button class="x" data-a="edp" data-id="${p.id}">${ic('edit')}</button><button class="x" data-a="del" data-c="products" data-id="${p.id}">${ic('trash')}</button></div>`).join('')||'<p class="mut">Todavía no cargaste productos. Los de ejemplo se ocultan al cargar el primero.</p>'}`}
  if(tab=='xls')h+=xlsV();
  if(tab=='cats')h+=`<h2>Categorías</h2><div class="sec"><div class="row">${'<input id="nc" placeholder="Ej: Cuerpo">'}<button class="btn" data-a="mkc">Crear</button></div></div>${S.cats.map(c=>`<div class="li"><b>${esc(c.n)}</b><button class="x" data-a="del" data-c="cats" data-id="${c.id}">${ic('trash')}</button></div>`).join('')||'<p class="mut">Sin categorías: se usan Fragancias, Tratamientos faciales, Cuidado capilar e Higiene corporal.</p>'}`;
  if(tab=='web')h+=`<h2>Detalles de la web</h2><div class="sec"><label class="fl">Sobre nosotros<textarea id="ab" rows="5">${esc(SET().about||'')}</textarea></label>${fld('WhatsApp (con código de país, solo números)','wn',SET().wa,'595981123456','inputmode="numeric"')}${fld('Correo','em',SET().email,'','inputmode="email"')}${fld('Promo de arriba: envío gratis desde (Gs.). Vacío = ocultar','fs',SET().fs==null?300000:SET().fs,'300000','inputmode="numeric"')}</div><button class="btn w" data-a="saveweb">Guardar</button><div class="sec" style="margin-top:24px"><h3>Cuenta</h3>${fld('Nueva contraseña (mínimo 8)','npw','','','type="password" autocomplete="new-password"')}<button class="btn w" data-a="chpw">Cambiar contraseña</button><br><br><button class="btn g w" data-a="logout">Cerrar sesión</button></div>`;
@@ -303,7 +371,7 @@ const go=h=>{fw=1;location.hash=h;if(!h)history.replaceState(null,'',location.pa
 addEventListener('hashchange',()=>render());
 const g=i=>$(i)&&$(i).value.trim();
 const shrink=f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>ok(b),'image/jpeg',.82)};im.onerror=()=>ok(null);im.src=r.result};r.onerror=()=>ok(null);r.readAsDataURL(f)});
-async function upl(files){try{if(!adm){toast('Iniciá sesión');return[]}const out=[],bk=SB.storage.from('essenza');toast('Subiendo…');for(const f of files){const b=await shrink(f);if(b){const p=uid()+'.jpg',{error}=await bk.upload(p,b,{contentType:'image/jpeg',cacheControl:'31536000'});if(error)throw error;out.push(bk.getPublicUrl(p).data.publicUrl)}}toast('Fotos listas');return out}catch(e){toast('No se pudo subir');return[]}}
+async function upl(files){try{if(!adm){toast('Iniciá sesión');return[]}const out=[],bk=SB.storage.from('essenza');toast('Subiendo…');for(const f of files){if(autoCut())toast('Quitando fondo… (la 1ª vez tarda más)');const r=await prepImg(f);if(r){const p=uid()+'.'+r.ext,{error}=await bk.upload(p,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;out.push(bk.getPublicUrl(p).data.publicUrl)}}toast('Fotos listas');return out}catch(e){toast('No se pudo subir');return[]}}
 let lt=0,lT;
 const fly=r=>{try{const c=$('#cb');if(!c||!r)return;const b=c.getBoundingClientRect(),x0=r.left+r.width/2-6,y0=r.top+r.height/2-6,x1=b.left+b.width/2-6,y1=b.top+b.height/2-6,cx=b.left+b.width/2,cy=b.top+b.height/2,e=document.createElement('div');e.className='fly';document.body.appendChild(e);const an=e.animate([{transform:`translate(${x0}px,${y0}px) scale(1)`},{transform:`translate(${x1}px,${y1}px) scale(.6)`}],{duration:650,easing:'cubic-bezier(.45,0,.7,.35)'});an.onfinish=()=>{e.remove();c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump');const m=(w,css,k,d)=>{const o=document.createElement('div');o.className='fly';o.style.cssText=`width:${w}px;height:${w}px;${css}`;document.body.appendChild(o);o.animate(k,{duration:d,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>o.remove()};m(30,'background:none;box-shadow:none;border:2px solid var(--co)',[{transform:`translate(${cx-15}px,${cy-15}px) scale(.3)`,opacity:1},{transform:`translate(${cx-15}px,${cy-15}px) scale(1.8)`,opacity:0}],450);for(let i=0;i<8;i++){const g=i*Math.PI/4,dx=Math.cos(g)*26,dy=Math.sin(g)*26;m(6,'box-shadow:none',[{transform:`translate(${cx-3}px,${cy-3}px) scale(1)`,opacity:1},{transform:`translate(${cx-3+dx}px,${cy-3+dy}px) scale(0)`,opacity:0}],500)}}}catch(_){}};
 let XL=null,XLB=0,ZP=null,ZPB=0;
@@ -332,6 +400,9 @@ async function xlsGo(){if(!XL||XLB)return;XLB=1;const b=$('[data-a=xlsgo]');b&&(
  for(let i=0;i<rows.length;i+=100){const{error}=await SB.from('products').upsert(rows.slice(i,i+100));if(error)throw error}
  sync('cats');sync('products');const n=rows.length;XL=null;toast(n+' productos cargados');render()}catch(e){toast('No se pudieron cargar todos')}finally{XLB=0}}
 async function xlsDel(){const L=S.prods.filter(p=>p.xl);if(!L.length)return;if(!confirm('¿Borrar los '+L.length+' productos cargados desde Excel? No se puede deshacer.'))return;try{toast('Borrando…');const ids=L.map(p=>p.id);for(let i=0;i<ids.length;i+=100){const{error}=await SB.from('products').delete().in('id',ids.slice(i,i+100));if(error)throw error}sync('products');toast(ids.length+' productos borrados');render()}catch(e){toast('No se pudieron borrar todos')}}
+async function imgsDelAll(){const L=S.prods.filter(p=>p.imgs&&p.imgs.length);if(!L.length)return;const n=L.reduce((a,p)=>a+p.imgs.length,0);if(!confirm('¿Borrar las '+n+' fotos de '+L.length+' productos? No se puede deshacer.'))return;try{toast('Borrando fotos…');const rows=L.map(p=>{const o={...p};delete o.id;o.imgs=[];return{id:p.id,data:o}});for(let i=0;i<rows.length;i+=100){const{error}=await SB.from('products').upsert(rows.slice(i,i+100));if(error)throw error}
+ try{const bk=SB.storage.from('essenza'),ps=[].concat(...L.map(p=>p.imgs)).map(u=>{const m=String(u).match(/\/essenza\/([^?#]+)/);return m&&decodeURIComponent(m[1])}).filter(Boolean);for(let i=0;i<ps.length;i+=100)await bk.remove(ps.slice(i,i+100))}catch(_){}
+ sync('products');toast('Fotos borradas');render()}catch(e){toast('No se pudieron borrar todas')}}
 async function xlsExp(){try{await loadX();const h=['Código','Nombre','Categoría','Tamaños (ml)','Descripción','Precio Gs.','Precio anterior','Destacado','Foto (link)'];const R=S.prods.map(p=>[p.cod||'',p.n||'',p.c||'',(p.sz||[]).join(', '),p.d||'',p.p||'',p.o||'',p.f?'Sí':'No',(p.imgs||[]).join(' ')]);const ws=XLSX.utils.aoa_to_sheet([h,...R]);ws['!cols']=[{wch:12},{wch:26},{wch:22},{wch:18},{wch:48},{wch:14},{wch:16},{wch:12},{wch:36}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Productos');XLSX.writeFile(wb,'productos-essenza.xlsx')}catch(e){toast('No se pudo crear el Excel')}}
 const loadZ=()=>window.JSZip?Promise.resolve():new Promise((ok,no)=>{const u=['https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js','https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'];let i=0;const go=()=>{if(i>=u.length)return no();const s=document.createElement('script');s.src=u[i++];s.onload=ok;s.onerror=()=>{s.remove();go()};document.head.appendChild(s)};go()});
 const ck=s=>{s=nz(String(s==null?'':s)).trim().replace(/\s+/g,'');return /^\d+$/.test(s)?String(+s):s};
@@ -351,7 +422,7 @@ async function zipRead(f){try{toast('Leyendo ZIP…');
 async function zipGo(){if(!ZP||ZPB||!ZP.hits.length)return;if(!adm)return toast('Iniciá sesión');ZPB=1;const b=$('[data-a=zipgo]');b&&(b.disabled=true);
  try{const bk=SB.storage.from('essenza'),H=ZP.hits,T=[],tot=ZP.nimg;let done=0,fail=0,n=0;H.forEach(h=>{h.u=[];h.fs.forEach((x,i)=>T.push({h,x,i}))});
   const label=()=>{const e=$('[data-a=zipgo]');e&&(e.textContent='Subiendo '+done+' de '+tot+'…')};label();
-  const wk=async()=>{while(n<T.length){const t=T[n++];try{const bl=await shrink(new Blob([await t.x.e.async('arraybuffer')],{type:t.x.mime}));if(!bl)throw 0;const path=uid()+'.jpg',{error}=await bk.upload(path,bl,{contentType:'image/jpeg',cacheControl:'31536000'});if(error)throw error;t.h.u[t.i]=bk.getPublicUrl(path).data.publicUrl}catch(e){fail++}done++;label()}};
+  const wk=async()=>{while(n<T.length){const t=T[n++];try{const r=await prepImg(new Blob([await t.x.e.async('arraybuffer')],{type:t.x.mime}));if(!r)throw 0;const path=uid()+'.'+r.ext,{error}=await bk.upload(path,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;t.h.u[t.i]=bk.getPublicUrl(path).data.publicUrl}catch(e){fail++}done++;label()}};
   await Promise.all([wk(),wk(),wk()]);
   const rows=[];H.forEach(h=>{const imgs=h.u.filter(Boolean);if(!imgs.length)return;const o={...h.p};delete o.id;rows.push({id:h.p.id,data:{...o,imgs}})});
   for(let i=0;i<rows.length;i+=100){const{error}=await SB.from('products').upsert(rows.slice(i,i+100));if(error)throw error}
@@ -359,7 +430,7 @@ async function zipGo(){if(!ZP||ZPB||!ZP.hits.length)return;if(!adm)return toast(
  }catch(e){toast('No se pudo terminar la carga')}finally{ZPB=0;const e2=$('[data-a=zipgo]');e2&&(e2.disabled=false)}}
 function zipV(){const z=ZP,n=z.hits.length,s=k=>k==1?'':'s',m=z.miss.length,o=z.orph.length;
  return `<h2>Revisá antes de subir las fotos</h2><div class="sec"><p style="margin-top:0"><b>${z.nimg}</b> foto${s(z.nimg)} para <b>${n}</b> producto${s(n)}<br><span class="mut">${esc(z.name)}</span></p>${m?`<p class="mut" style="line-height:1.6">⚠ ${m} producto${s(m)} con código sin foto en el ZIP: ${z.miss.slice(0,4).map(p=>esc(p.cod)).join(', ')}${m>4?'…':''}</p>`:''}${o?`<p class="mut" style="line-height:1.6">⚠ ${o} foto${s(o)} sin producto: ${z.orph.slice(0,4).map(esc).join(', ')}${o>4?'…':''}</p>`:''}${z.nocod?`<p class="mut">${z.nocod} producto${s(z.nocod)} sin código, no se tocan.</p>`:''}${n?'<p class="mut" style="line-height:1.6;margin-bottom:0">Las fotos actuales de estos productos se reemplazan por las del ZIP.</p>':`<p class="mut" style="line-height:1.6;margin-bottom:0">No coincidió ninguna foto. El nombre de cada foto tiene que ser igual al código del producto (tus códigos: ${z.cods.map(esc).join(', ')}…), por ejemplo ${esc(z.cods[0]||'001')}.jpg</p>`}</div>${z.hits.slice(0,5).map(h=>`<div class="li"><b>${esc(h.p.n)}<br><span class="mut" style="font-weight:400;font-size:14px">#${esc(h.p.cod)} · ${h.fs.length} foto${s(h.fs.length)}</span></b></div>`).join('')}${n>5?`<p class="mut">y ${n-5} más…</p>`:''}${n?`<button class="btn w" data-a="zipgo">Subir ${z.nimg} foto${s(z.nimg)}</button><br><br>`:''}<button class="chip" style="width:100%" data-a="zipclr">Cancelar</button>`}
-function xlsV(){if(ZP)return zipV();if(!XL)return `<h2>Importar desde Excel</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Cargá muchos productos de una sola vez. Descargá la plantilla, completala con una fila por producto (código, nombre, categoría, ml, descripción, precios) y subila acá. Las categorías nuevas se crean solas, y si un producto ya existe con el mismo nombre, se actualiza en vez de duplicarse.</p><button class="btn g w" data-a="xlstpl">Descargar plantilla</button></div><div class="sec"><input id="xf" type="file" accept=".xlsx,.xls,.csv" hidden><label for="xf" class="upb">${ic('upload',22)}Subir Excel</label></div><h2>Fotos desde un ZIP</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Después de cargar el Excel, subí un ZIP con las fotos. Cada foto tiene que llamarse igual que el código del producto, por ejemplo <b>001.jpg</b>. Si un producto tiene varias fotos: <b>001_2.jpg</b>, <b>001_3.jpg</b>. Antes de subir te muestro qué coincide.</p><input id="zf" type="file" accept=".zip,application/zip,application/x-zip-compressed" hidden><label for="zf" class="upb">${ic('upload',22)}Subir ZIP de fotos</label></div>${S.prods.length?'<h2>Copia de seguridad</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Descargá un Excel con todos tus productos (código, precios, fotos). Sirve de respaldo y se puede volver a subir.</p><button class="btn g w" data-a="xlsexp">Descargar Excel de productos</button></div>':''}${S.prods.some(p=>p.xl)?`<div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Hay ${S.prods.filter(p=>p.xl).length} productos cargados desde Excel.</p><button class="chip" style="width:100%;color:#ff8a80" data-a="xlsdel">Borrar todos los cargados desde Excel</button></div>`:''}`;
+function xlsV(){if(ZP)return zipV();if(!XL)return `<h2>Importar desde Excel</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Cargá muchos productos de una sola vez. Descargá la plantilla, completala con una fila por producto (código, nombre, categoría, ml, descripción, precios) y subila acá. Las categorías nuevas se crean solas, y si un producto ya existe con el mismo nombre, se actualiza en vez de duplicarse.</p><button class="btn g w" data-a="xlstpl">Descargar plantilla</button></div><div class="sec"><input id="xf" type="file" accept=".xlsx,.xls,.csv" hidden><label for="xf" class="upb">${ic('upload',22)}Subir Excel</label></div><h2>Fotos desde un ZIP</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Después de cargar el Excel, subí un ZIP con las fotos. Cada foto tiene que llamarse igual que el código del producto, por ejemplo <b>001.jpg</b>. Si un producto tiene varias fotos: <b>001_2.jpg</b>, <b>001_3.jpg</b>. Antes de subir te muestro qué coincide.</p><input id="zf" type="file" accept=".zip,application/zip,application/x-zip-compressed" hidden><label for="zf" class="upb">${ic('upload',22)}Subir ZIP de fotos</label></div>${S.prods.length?'<h2>Copia de seguridad</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Descargá un Excel con todos tus productos (código, precios, fotos). Sirve de respaldo y se puede volver a subir.</p><button class="btn g w" data-a="xlsexp">Descargar Excel de productos</button></div>':''}${S.prods.some(p=>p.imgs&&p.imgs.length)?`<div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Hay ${S.prods.reduce((a,p)=>a+(p.imgs||[]).length,0)} fotos cargadas en ${S.prods.filter(p=>p.imgs&&p.imgs.length).length} productos.</p><button class="chip" style="width:100%;color:#ff8a80" data-a="imgsdel">Borrar todas las fotos cargadas</button></div>`:''}${S.prods.some(p=>p.xl)?`<div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Hay ${S.prods.filter(p=>p.xl).length} productos cargados desde Excel.</p><button class="chip" style="width:100%;color:#ff8a80" data-a="xlsdel">Borrar todos los cargados desde Excel</button></div>`:''}`;
  const cc={};XL.items.forEach(x=>cc[x.c]=(cc[x.c]||0)+1);const n=XL.items.length;
  return `<h2>Revisá antes de cargar</h2><div class="sec"><p style="margin-top:0"><b>${n}</b> producto${n==1?'':'s'} en <span class="mut">${esc(XL.name)}</span><br><span class="mut">${n-XL.up} nuevo${n-XL.up==1?'':'s'} · ${XL.up} se actualiza${XL.up==1?'':'n'}</span></p><p class="mut" style="line-height:1.7">${Object.keys(cc).map(k=>esc(k)+' ('+cc[k]+')').join(' · ')}</p>${XL.nc.length?`<p class="mut">Categorías nuevas: ${XL.nc.map(esc).join(', ')}</p>`:''}${XL.nop?`<p class="mut">⚠ ${XL.nop} sin precio.</p>`:''}${XL.noc?`<p class="mut">⚠ ${XL.noc} sin código (no se vincularán con las fotos del ZIP).</p>`:''}${XL.err?`<p class="mut">⚠ ${XL.err} fila${XL.err==1?'':'s'} sin nombre, se omiten.</p>`:''}</div>${XL.items.slice(0,5).map(x=>`<div class="li"><b>${esc(x.n)}<br><span class="mut" style="font-weight:400;font-size:14px">${x.cod?'#'+esc(x.cod)+' · ':''}${esc(x.c)}${x.sz.length?' · '+esc(x.sz.join(', ')):''} · ${gs(x.p)}</span></b></div>`).join('')}${n>5?`<p class="mut">y ${n-5} más…</p>`:''}<button class="btn w" data-a="xlsgo">Cargar ${n} producto${n==1?'':'s'}</button><br><br><button class="chip" style="width:100%" data-a="xlsclr">Cancelar</button>`}
 
@@ -389,9 +460,11 @@ document.addEventListener('click',async e=>{{const od=$('.lkp.open');if(od&&!e.t
   wa(m);S.cart=[];save();go('')}
  else if(a=='tab'){tab=d.t;ed=null;XL=null;ZP=null;render()}
  else if(a=='del'){if(confirm('¿Borrar?'))await del(d.c,d.id)}
- else if(a=='xlstpl'){await xlsTpl()}else if(a=='xlsexp'){await xlsExp()}else if(a=='xlsgo'){await xlsGo()}else if(a=='xlsclr'){XL=null;render()}else if(a=='xlsdel'){await xlsDel()}else if(a=='zipgo'){await zipGo()}else if(a=='zipclr'){ZP=null;render()}
+ else if(a=='xlstpl'){await xlsTpl()}else if(a=='xlsexp'){await xlsExp()}else if(a=='xlsgo'){await xlsGo()}else if(a=='xlsclr'){XL=null;render()}else if(a=='xlsdel'){await xlsDel()}else if(a=='imgsdel'){await imgsDelAll()}else if(a=='zipgo'){await zipGo()}else if(a=='zipclr'){ZP=null;render()}
  else if(a=='edp'){ed=d.id;render()}else if(a=='cancel'){ed=null;render()}
+ else if(a=='clrim'){if(IM.length&&confirm('¿Quitar las '+IM.length+' fotos de este producto? Se borran al guardar.')){IM=[];$('#pv').innerHTML=thumbs();toast('Fotos quitadas')}}
  else if(a=='rmi'){IM.splice(+d.k,1);$('#pv').innerHTML=thumbs()}
+ else if(a=='cut'){const k=+d.k,u=IM[k];if(!u||t.disabled)return;t.disabled=true;toast('Quitando fondo…');try{const bl=await (await fetch(u,{mode:'cors'})).blob(),r=await prepImg(bl,true);if(!r||!r.cut){toast('No se pudo recortar bien. Se dejó la foto original');t.disabled=false;return}const bk=SB.storage.from('essenza'),p=uid()+'.'+r.ext,{error}=await bk.upload(p,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;IM[k]=bk.getPublicUrl(p).data.publicUrl;$('#pv').innerHTML=thumbs();toast('Fondo quitado')}catch(e){toast('No se pudo quitar el fondo');t.disabled=false}}
  else if(a=='mkp'){if(!g('#pn'))return alert('Falta el nombre.');const n=s=>parseInt(String(g(s)||'').replace(/\D/g,''))||0,id=ed||uid();
   if(await put('products',id,{n:g('#pn'),c:$('#pc').value,p:n('#pp'),o:n('#po'),d:$('#pds').value.trim(),sz:(g('#psz')||'').split(',').map(x=>x.trim()).filter(Boolean),imgs:IM,f:$('#pd').checked?1:0,...((S.prods.find(q=>q.id==id)||{}).xl?{xl:1}:{}),...((S.prods.find(q=>q.id==id)||{}).cod?{cod:S.prods.find(q=>q.id==id).cod}:{})})){ed=null;toast('Producto guardado');render()}}
  else if(a=='mkc'){if(g('#nc')){await put('cats',uid(),{n:g('#nc')});$('#nc').value=''}}
@@ -418,6 +491,7 @@ document.addEventListener('click',async e=>{{const od=$('.lkp.open');if(od&&!e.t
 });
 document.addEventListener('change',async e=>{const t=e.target;
  if(t.id=='sh'){shipSel=t.value;$('#shi').innerHTML=shipTxt();$('#ct').textContent=totTxt()}
+ else if(t.id=='ac'){setAutoCut(t.checked)}
  else if(t.id=='pf'&&t.files.length){IM=IM.concat(await upl([...t.files]));$('#pv').innerHTML=thumbs()}
  else if(t.id=='xf'&&t.files.length){await xlsRead(t.files[0]);t.value=''}
  else if(t.id=='zf'&&t.files.length){await zipRead(t.files[0]);t.value=''}
