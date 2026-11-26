@@ -156,6 +156,29 @@ a{color:var(--co2)}a:focus-visible,button:focus-visible,summary:focus-visible{ou
 img[src*=".png"],img[src*=".webp"]{mix-blend-mode:normal!important}
 .ci img[src*=".png"],.ci img[src*=".webp"],.li .t img[src*=".png"],.li .t img[src*=".webp"]{object-fit:contain;padding:6px;box-sizing:border-box}
 .th button.ct{top:auto;bottom:3px;right:3px;font-size:12px}
+/* panel de progreso de carga de fotos */
+.pgo{position:fixed;inset:0;z-index:90;background:rgba(2,10,20,.78);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center}
+.pgb{width:100%;max-width:520px;background:var(--cd);border:1px solid var(--bd);border-radius:24px 24px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom,0px));animation:rmu .35s cubic-bezier(.22,1,.36,1)}
+.pgt{margin:0 0 4px;font-size:18px}.pgc{color:var(--mut);font-size:14px;margin-bottom:12px}
+.pgbar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.pgf{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--co2),var(--co));transition:width .35s}
+.pgp{text-align:right;font-weight:800;font-size:13px;margin:4px 0 6px}
+.pgh{font-size:13px;color:var(--ac);margin:0 0 8px;line-height:1.4}.pgh:empty{display:none}
+.pgl{max-height:38vh;overflow-y:auto;position:relative}
+.pgr{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--bd)}
+.pgn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:14px}
+.pgs{color:var(--mut);font-size:12.5px;text-align:right;max-width:48%;line-height:1.25}
+.pgi{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;box-sizing:border-box}
+.pgr[data-s=q] .pgi{border:2px solid var(--bd)}
+.pgr[data-s=ok] .pgi{background:var(--gr);color:var(--ink)}.pgr[data-s=ok] .pgi::before{content:"\2713"}
+.pgr[data-s=er] .pgi{background:#ff5a5f;color:#fff}.pgr[data-s=er] .pgi::before{content:"\2715"}
+.pgr:not([data-s=q]):not([data-s=ok]):not([data-s=er]) .pgi{border:2.5px solid rgba(255,255,255,.2);border-top-color:var(--co);animation:pgs .8s linear infinite}
+.pgr:not([data-s=q]):not([data-s=ok]):not([data-s=er]) .pgs{color:var(--tx)}
+.pgx{width:100%;margin-top:12px}
+.li.pl .t{position:relative;width:76px;height:76px;border-radius:18px}.li.pl .t img{object-fit:contain;padding:4px;box-sizing:border-box}.pcn{position:absolute;right:4px;bottom:4px;font-style:normal;font-size:11px;font-weight:800;line-height:1;background:var(--co);color:#fff;border-radius:99px;padding:3px 6px}
+.pgm{display:none;flex:none;width:44px;height:44px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid var(--bd)}.pgm img{width:100%;height:100%;object-fit:contain}
+.pst{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap;font-weight:400}.pst img{width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid var(--bd);background:rgba(255,255,255,.06)}.pst img[src*=".png"],.pst img[src*=".webp"]{object-fit:contain;padding:2px;box-sizing:border-box}.pst i{font-style:normal;font-size:12.5px;color:var(--mut)}
+@keyframes pgs{to{transform:rotate(360deg)}}
 </style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){
 var LIB=null,Q=Promise.resolve(),MAXS=1000;
 function auto(){try{return localStorage.getItem('essAutoCut')!=='0'}catch(_){return true}}
@@ -205,15 +228,17 @@ function refine(d,w,h){
 }
 window._refineCut=refine;
 
-function run(blob,force){
- return (Q=Q.then(function(){return go(blob)},function(){return go(blob)}));
+function run(blob,force,cb){
+ cb&&cb('q');
+ return (Q=Q.then(function(){return go(blob,cb)},function(){return go(blob,cb)}));
 }
-async function go(blob){
+async function go(blob,cb){
+ cb=cb||function(){};cb('prep');
  var im=await blobImg(blob),c=scaled(im),w=c.width,h=c.height;
  var jpg=await toBlob(c,'image/jpeg',.88);
  var orig={b:jpg,ext:'jpg',type:'image/jpeg',cut:false};
  try{
-  var m=await lib(),res=await m.removeBackground(jpg,{model:'isnet_quint8',output:{format:'image/png',quality:1}}),ri=await blobImg(res),c2=document.createElement('canvas');
+  cb('ld',0);var m=await lib();cb('cut');var res=await m.removeBackground(jpg,{model:'isnet_quint8',output:{format:'image/png',quality:1},progress:function(k,c,t){if(String(k).indexOf('fetch')===0)cb('ld',t?c/t:0);else cb('cut')}});cb('ref');var ri=await blobImg(res),c2=document.createElement('canvas');
   c2.width=w;c2.height=h;var x=c2.getContext('2d',{willReadFrequently:true});x.drawImage(ri,0,0,w,h);
   var id=x.getImageData(0,0,w,h),r=refine(id.data,w,h);
   /* seguridad: si borró casi todo, o no quitó nada, se conserva la foto original */
@@ -228,10 +253,45 @@ async function go(blob){
  }catch(e){console.warn('recorte IA falló, se usa la foto original',e);return orig}
 }
 /* prep(file,force): devuelve {b,ext,type,cut} listo para subir */
-window.prepImg=function(f,force){
- if(!force&&!auto())return blobImg(f).then(function(im){var c=scaled(im);return toBlob(c,'image/jpeg',.82)}).then(function(b){return b&&{b:b,ext:'jpg',type:'image/jpeg',cut:false}}).catch(function(){return null});
- return run(f).catch(function(){return null})
+window.prepImg=function(f,force,cb){
+ if(!force&&!auto())return (cb&&cb('prep'),blobImg(f)).then(function(im){var c=scaled(im);return toBlob(c,'image/jpeg',.82)}).then(function(b){return b&&{b:b,ext:'jpg',type:'image/jpeg',cut:false}}).catch(function(){return null});
+ return run(f,force,cb).catch(function(){return null})
 };
+})();
+
+window.Prog=(function(){
+ var el=null,R={},P={},U=[],tot=0,fails=0,tm=null,hint=false,
+ W={q:0,prep:.08,ld:.1,cut:.5,ref:.7,up:.82,ok:1,er:1},
+ L={q:'En cola',prep:'Preparando foto',ld:'Descargando recortador IA',cut:'Quitando fondo',ref:'Puliendo bordes',up:'Subiendo'};
+ function q(s){return el&&el.querySelector(s)}
+ function bar(){if(!el)return;var s=0,k,d=0;for(k in P)s+=P[k];for(k in R)if(R[k].d)d++;
+  var p=tot?Math.min(100,Math.round(s/tot*100)):0;q('.pgf').style.width=p+'%';q('.pgp').textContent=p+'%';
+  q('.pgc').textContent=d+' de '+tot+(tot==1?' foto':' fotos')+(fails?' \u00b7 '+fails+' con error':'')}
+ function close(){clearTimeout(tm);if(el){el.remove();el=null}R={};P={};U.forEach(function(u){URL.revokeObjectURL(u)});U=[]}
+ return{
+  open:function(title,items){close();tot=items.length;fails=0;hint=false;
+   el=document.createElement('div');el.className='pgo';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
+   el.innerHTML='<div class="pgb"><h3 class="pgt"></h3><div class="pgc"></div><div class="pgbar"><i class="pgf"></i></div><div class="pgp"></div><div class="pgh"></div><div class="pgl"></div><button type="button" class="chip pgx" hidden>Cerrar</button></div>';
+   q('.pgt').textContent=title;q('.pgx').onclick=close;
+   var l=q('.pgl');
+   items.forEach(function(it){var r=document.createElement('div');r.className='pgr';r.dataset.s='q';
+    r.innerHTML='<span class="pgi"></span><span class="pgm"></span><span class="pgn"></span><small class="pgs"></small>';
+    r.querySelector('.pgn').textContent=it.label;r.querySelector('.pgs').textContent=L.q;
+    l.appendChild(r);R[it.id]={r:r,d:0};P[it.id]=0});
+   document.body.appendChild(el);bar()},
+  set:function(id,st,x){var o=R[id];if(!o||o.d||!el)return;var t=L[st]||st;
+   if(st=='ld'){t+=' '+Math.round((x||0)*100)+'%';P[id]=W.ld+.35*(x||0);if(!hint){hint=true;q('.pgh').textContent='La primera vez tarda m\u00e1s: se descarga el recortador de fondo. Despu\u00e9s es r\u00e1pido.'}}
+   else P[id]=W[st]||0;
+   if(st=='cut'||st=='ref'||st=='up')q('.pgh').textContent='';
+   if(o.r.dataset.s!=st){o.r.dataset.s=st;var l=q('.pgl');if(st!='q')l.scrollTop=Math.max(0,o.r.offsetTop-l.clientHeight/2)}
+   var s=o.r.querySelector('.pgs');if(s.textContent!=t)s.textContent=t;bar()},
+  fin:function(id,ok,txt){var o=R[id];if(!o||!el)return;o.d=1;P[id]=1;if(!ok)fails++;
+   o.r.dataset.s=ok?'ok':'er';o.r.querySelector('.pgs').textContent=txt||(ok?'Listo':'No se pudo');bar()},
+  pic:function(id,b){var o=R[id];if(!o||!el||!b)return;var u=URL.createObjectURL(b);U.push(u);var m=o.r.querySelector('.pgm'),i=document.createElement('img');i.alt='';i.src=u;m.textContent='';m.appendChild(i);m.style.display='block'},
+  msg:function(t){if(el){q('.pgt').textContent=t;q('.pgh').textContent=''}},
+  end:function(t,keep){if(!el)return;q('.pgt').textContent=t;q('.pgh').textContent='';bar();
+   if(keep){q('.pgx').hidden=false}else{tm=setTimeout(close,1300)}},
+  close:close}
 })();
 
 window.cutImgs=function(){};window.precut=function(){};</script></head><body>
@@ -301,6 +361,7 @@ function rvModal(){let m=$('#rmo');if(!m){m=document.createElement('div');m.id='
  m.innerHTML=`<div class="rmb" role="dialog" aria-modal="true" aria-label="Dejar un comentario"><button class="rmx" data-a="rvclose" aria-label="Cerrar">×</button><h2 style="margin-top:0">Contanos tu experiencia</h2><p class="mut" style="margin-top:0">Tu opinión sobre Essenza nos ayuda a mejorar.</p>${pickStars('rss',srs)}${fld('Tu nombre','srn','','','maxlength="40" autocomplete="given-name"')}<label class="fl">Tu comentario<textarea id="srt" rows="4" maxlength="500" placeholder="¿Cómo fue tu experiencia con la tienda?"></textarea></label><div class="hp"><input id="srh" tabindex="-1" autocomplete="off"></div><button class="btn w" data-a="rvsend">Enviar comentario</button></div>`;
  m.classList.add('on');document.documentElement.style.overflow='hidden'}
 const rvClose=()=>{const m=$('#rmo');if(m)m.classList.remove('on');document.documentElement.style.overflow=''};
+const pst=p=>{const m=p.imgs||[];return m.length?`<span class="pst">${m.slice(0,5).map(u=>`<img src="${esc(u)}" alt="" loading="lazy" decoding="async">`).join('')}${m.length>5?`<i>+${m.length-5}</i>`:''}</span>`:'<span class="pst"><i>Sin fotos</i></span>'};
 const pic=(p,s)=>(p.imgs||[])[0]?`<img src="${esc(p.imgs[0])}" alt="" loading="lazy" decoding="async">`:bot(s);
 const card=p=>`<div class="card" data-a="open" data-id="${p.id}">${p.o>p.p&&p.p?`<span class="badge">-${Math.round((1-p.p/p.o)*100)}%</span>`:''}<div class="pic">${pic(p,92)}</div>${p.c=='Fragancias'&&brandOf(p)?`<div class="bn">${esc(brandOf(p))}</div>`:''}<div class="nm">${esc(p.n)}</div><div class="pr">${gs(p.p)}</div>${p.o>p.p&&p.p?`<s>${gs(p.o)}</s>`:''}</div>`;
 const wa=(t,w)=>{if(!WA()){navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});return toast('Configurá el WhatsApp en el panel')}const o=$('#wo');o.classList.add('on');setTimeout(()=>o.classList.remove('on'),1600);window.open(`https://wa.me/${WA()}?text=${encodeURIComponent(t)}`,'_blank')};
@@ -339,7 +400,7 @@ const fld=(l,id,v,ph,t)=>`<label class="fl">${l}<input id="${id}" value="${esc(v
 function admV(){if(!adm)return `<div class="c" style="margin:40px 0"><h1 style="font-size:24px">Acceso al panel</h1><p class="mut">Ingresá con tu correo y contraseña de administrador.</p><div class="sec">${fld('Correo','le','','tucorreo@ejemplo.com','type="email" autocomplete="username" inputmode="email"')}${fld('Contraseña','lp','','','type="password" autocomplete="current-password"')}<button class="btn w" data-a="login">Entrar</button></div><button class="back" data-a="go" data-h="">← Volver a la tienda</button></div>`;
  const T=[['prods','box'],['xls','xls'],['cats','tag'],['web','home'],['links','globe'],['ship','truck'],['revs','star'],['rv','chat'],['ords','bag']];let h=`<h1 style="font-size:24px">Panel de Essenza</h1><div class="tabs">${T.map(t=>`<button class="${tab==t[0]?'on':''}" data-a="tab" data-t="${t[0]}">${ic(t[1])}</button>`).join('')}</div>`;
  if(!db)h+='<p class="mut">La base de datos no está disponible en esta vista.</p>';
- if(tab=='prods'){const e=S.prods.find(p=>p.id==ed)||{};h+=`<h2>${ed?'Editar producto':'Nuevo producto'}</h2><div class="sec"><div class="two"><label class="fl">Categoría<select id="pc">${CATS().map(c=>`<option ${c==e.c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>${fld('Tamaños (coma)','psz',(e.sz||[]).join(', '),'50 ml, 100 ml')}</div>${fld('Nombre','pn',e.n)}<label class="fl">Descripción<textarea id="pds" rows="3" placeholder="Marca: … / Notas: …">${esc(e.d||'')}</textarea></label><div class="two">${fld('Precio Gs.','pp',e.p||'','','inputmode="numeric"')}${fld('Precio anterior','po',e.o||'','','inputmode="numeric"')}</div><input id="pf" type="file" accept="image/*" multiple hidden><label class="chk" style="margin-bottom:12px"><input type="checkbox" id="ac" ${autoCut()?'checked':''}><span>Quitar fondo automáticamente</span></label><label for="pf" class="upb">${ic('upload',22)}Subir fotos</label><div id="pv" class="thumbs">${(IM=(e.imgs||[]).slice(),thumbs())}</div><label class="chk"><input type="checkbox" id="pd" ${e.f?'checked':''}><span>Destacado en inicio</span></label></div><button class="btn w" data-a="mkp">${ed?'Guardar cambios':'Agregar producto'}</button>${ed?'<br><br><button class="chip" style="width:100%" data-a="cancel">Cancelar</button>':''}<h2>Productos cargados</h2>${S.prods.map(p=>`<div class="li"><div class="t">${pic(p,40)}</div><b>${esc(p.n)}<br><span class="mut" style="font-weight:400;font-size:14px">${p.cod?'#'+esc(p.cod)+' · ':''}${gs(p.p)}</span></b><button class="x" data-a="edp" data-id="${p.id}">${ic('edit')}</button><button class="x" data-a="del" data-c="products" data-id="${p.id}">${ic('trash')}</button></div>`).join('')||'<p class="mut">Todavía no cargaste productos. Los de ejemplo se ocultan al cargar el primero.</p>'}`}
+ if(tab=='prods'){const e=S.prods.find(p=>p.id==ed)||{};h+=`<h2>${ed?'Editar producto':'Nuevo producto'}</h2><div class="sec"><div class="two"><label class="fl">Categoría<select id="pc">${CATS().map(c=>`<option ${c==e.c?'selected':''}>${esc(c)}</option>`).join('')}</select></label>${fld('Tamaños (coma)','psz',(e.sz||[]).join(', '),'50 ml, 100 ml')}</div>${fld('Nombre','pn',e.n)}<label class="fl">Descripción<textarea id="pds" rows="3" placeholder="Marca: … / Notas: …">${esc(e.d||'')}</textarea></label><div class="two">${fld('Precio Gs.','pp',e.p||'','','inputmode="numeric"')}${fld('Precio anterior','po',e.o||'','','inputmode="numeric"')}</div><input id="pf" type="file" accept="image/*" multiple hidden><label class="chk" style="margin-bottom:12px"><input type="checkbox" id="ac" ${autoCut()?'checked':''}><span>Quitar fondo automáticamente</span></label><label for="pf" class="upb">${ic('upload',22)}Subir fotos</label><div id="pv" class="thumbs">${(IM=(e.imgs||[]).slice(),thumbs())}</div><label class="chk"><input type="checkbox" id="pd" ${e.f?'checked':''}><span>Destacado en inicio</span></label></div><button class="btn w" data-a="mkp">${ed?'Guardar cambios':'Agregar producto'}</button>${ed?'<br><br><button class="chip" style="width:100%" data-a="cancel">Cancelar</button>':''}<h2>Productos cargados</h2>${S.prods.map(p=>`<div class="li pl"><div class="t">${pic(p,40)}${(p.imgs||[]).length>1?`<em class="pcn">${p.imgs.length}</em>`:''}</div><b>${esc(p.n)}<br><span class="mut" style="font-weight:400;font-size:14px">${p.cod?'#'+esc(p.cod)+' · ':''}${gs(p.p)}</span></b><button class="x" data-a="edp" data-id="${p.id}">${ic('edit')}</button><button class="x" data-a="del" data-c="products" data-id="${p.id}">${ic('trash')}</button></div>`).join('')||'<p class="mut">Todavía no cargaste productos. Los de ejemplo se ocultan al cargar el primero.</p>'}`}
  if(tab=='xls')h+=xlsV();
  if(tab=='cats')h+=`<h2>Categorías</h2><div class="sec"><div class="row">${'<input id="nc" placeholder="Ej: Cuerpo">'}<button class="btn" data-a="mkc">Crear</button></div></div>${S.cats.map(c=>`<div class="li"><b>${esc(c.n)}</b><button class="x" data-a="del" data-c="cats" data-id="${c.id}">${ic('trash')}</button></div>`).join('')||'<p class="mut">Sin categorías: se usan Fragancias, Tratamientos faciales, Cuidado capilar e Higiene corporal.</p>'}`;
  if(tab=='web')h+=`<h2>Detalles de la web</h2><div class="sec"><label class="fl">Sobre nosotros<textarea id="ab" rows="5">${esc(SET().about||'')}</textarea></label>${fld('WhatsApp (con código de país, solo números)','wn',SET().wa,'595981123456','inputmode="numeric"')}${fld('Correo','em',SET().email,'','inputmode="email"')}${fld('Promo de arriba: envío gratis desde (Gs.). Vacío = ocultar','fs',SET().fs==null?300000:SET().fs,'300000','inputmode="numeric"')}</div><button class="btn w" data-a="saveweb">Guardar</button><div class="sec" style="margin-top:24px"><h3>Cuenta</h3>${fld('Nueva contraseña (mínimo 8)','npw','','','type="password" autocomplete="new-password"')}<button class="btn w" data-a="chpw">Cambiar contraseña</button><br><br><button class="btn g w" data-a="logout">Cerrar sesión</button></div>`;
@@ -371,7 +432,7 @@ const go=h=>{fw=1;location.hash=h;if(!h)history.replaceState(null,'',location.pa
 addEventListener('hashchange',()=>render());
 const g=i=>$(i)&&$(i).value.trim();
 const shrink=f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>ok(b),'image/jpeg',.82)};im.onerror=()=>ok(null);im.src=r.result};r.onerror=()=>ok(null);r.readAsDataURL(f)});
-async function upl(files){try{if(!adm){toast('Iniciá sesión');return[]}const out=[],bk=SB.storage.from('essenza');toast('Subiendo…');for(const f of files){if(autoCut())toast('Quitando fondo… (la 1ª vez tarda más)');const r=await prepImg(f);if(r){const p=uid()+'.'+r.ext,{error}=await bk.upload(p,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;out.push(bk.getPublicUrl(p).data.publicUrl)}}toast('Fotos listas');return out}catch(e){toast('No se pudo subir');return[]}}
+async function upl(files){try{if(!adm){toast('Iniciá sesión');return[]}const out=[],bk=SB.storage.from('essenza'),F=[...files];Prog.open(autoCut()?'Quitando fondo y subiendo fotos':'Subiendo fotos',F.map((f,i)=>({id:i,label:f.name||('Foto '+(i+1))})));for(let i=0;i<F.length;i++){try{const r=await prepImg(F[i],false,(s,x)=>Prog.set(i,s,x));if(!r){Prog.fin(i,false,'No se pudo leer la foto');continue}Prog.pic(i,r.b);Prog.set(i,'up');const p=uid()+'.'+r.ext,{error}=await bk.upload(p,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;out.push(bk.getPublicUrl(p).data.publicUrl);Prog.fin(i,true,autoCut()?(r.cut?'Listo · fondo quitado':'Listo · foto original'):'Listo')}catch(e){Prog.fin(i,false,'Error al subir')}}Prog.end(out.length+' de '+F.length+(F.length==1?' foto lista':' fotos listas'),out.length<F.length);return out}catch(e){Prog.end('No se pudo subir',true);return[]}}
 let lt=0,lT;
 const fly=r=>{try{const c=$('#cb');if(!c||!r)return;const b=c.getBoundingClientRect(),x0=r.left+r.width/2-6,y0=r.top+r.height/2-6,x1=b.left+b.width/2-6,y1=b.top+b.height/2-6,cx=b.left+b.width/2,cy=b.top+b.height/2,e=document.createElement('div');e.className='fly';document.body.appendChild(e);const an=e.animate([{transform:`translate(${x0}px,${y0}px) scale(1)`},{transform:`translate(${x1}px,${y1}px) scale(.6)`}],{duration:650,easing:'cubic-bezier(.45,0,.7,.35)'});an.onfinish=()=>{e.remove();c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump');const m=(w,css,k,d)=>{const o=document.createElement('div');o.className='fly';o.style.cssText=`width:${w}px;height:${w}px;${css}`;document.body.appendChild(o);o.animate(k,{duration:d,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>o.remove()};m(30,'background:none;box-shadow:none;border:2px solid var(--co)',[{transform:`translate(${cx-15}px,${cy-15}px) scale(.3)`,opacity:1},{transform:`translate(${cx-15}px,${cy-15}px) scale(1.8)`,opacity:0}],450);for(let i=0;i<8;i++){const g=i*Math.PI/4,dx=Math.cos(g)*26,dy=Math.sin(g)*26;m(6,'box-shadow:none',[{transform:`translate(${cx-3}px,${cy-3}px) scale(1)`,opacity:1},{transform:`translate(${cx-3+dx}px,${cy-3+dy}px) scale(0)`,opacity:0}],500)}}}catch(_){}};
 let XL=null,XLB=0,ZP=null,ZPB=0;
@@ -420,14 +481,14 @@ async function zipRead(f){try{toast('Leyendo ZIP…');
  const hits=Object.values(hit);hits.forEach(h=>h.fs.sort((a,b)=>a.ord-b.ord||a.fn.localeCompare(b.fn,'es',{numeric:true})));
  ZP={name:f.name,hits,orph,nimg:hits.reduce((a,h)=>a+h.fs.length,0),miss:S.prods.filter(p=>p.cod&&!hit[p.id]),nocod:S.prods.filter(p=>!p.cod).length,cods:S.prods.filter(p=>p.cod).slice(0,3).map(p=>p.cod)};render()}catch(e){toast('No se pudo leer el ZIP')}}
 async function zipGo(){if(!ZP||ZPB||!ZP.hits.length)return;if(!adm)return toast('Iniciá sesión');ZPB=1;const b=$('[data-a=zipgo]');b&&(b.disabled=true);
- try{const bk=SB.storage.from('essenza'),H=ZP.hits,T=[],tot=ZP.nimg;let done=0,fail=0,n=0;H.forEach(h=>{h.u=[];h.fs.forEach((x,i)=>T.push({h,x,i}))});
+ try{const bk=SB.storage.from('essenza'),H=ZP.hits,T=[],tot=ZP.nimg;let done=0,fail=0,n=0;H.forEach(h=>{h.u=[];h.fs.forEach((x,i)=>T.push({h,x,i,id:T.length}))});Prog.open('Subiendo fotos del ZIP',T.map(t=>({id:t.id,label:t.h.p.n+' · '+t.x.fn})));
   const label=()=>{const e=$('[data-a=zipgo]');e&&(e.textContent='Subiendo '+done+' de '+tot+'…')};label();
-  const wk=async()=>{while(n<T.length){const t=T[n++];try{const r=await prepImg(new Blob([await t.x.e.async('arraybuffer')],{type:t.x.mime}));if(!r)throw 0;const path=uid()+'.'+r.ext,{error}=await bk.upload(path,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;t.h.u[t.i]=bk.getPublicUrl(path).data.publicUrl}catch(e){fail++}done++;label()}};
+  const wk=async()=>{while(n<T.length){const t=T[n++];try{Prog.set(t.id,'prep');const r=await prepImg(new Blob([await t.x.e.async('arraybuffer')],{type:t.x.mime}),false,(s,x)=>Prog.set(t.id,s,x));if(!r)throw 0;Prog.pic(t.id,r.b);Prog.set(t.id,'up');const path=uid()+'.'+r.ext,{error}=await bk.upload(path,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;t.h.u[t.i]=bk.getPublicUrl(path).data.publicUrl;Prog.fin(t.id,true,r.cut?'Listo · fondo quitado':'Listo')}catch(e){fail++;Prog.fin(t.id,false,'No se pudo')}done++;label()}};
   await Promise.all([wk(),wk(),wk()]);
-  const rows=[];H.forEach(h=>{const imgs=h.u.filter(Boolean);if(!imgs.length)return;const o={...h.p};delete o.id;rows.push({id:h.p.id,data:{...o,imgs}})});
+  Prog.msg('Guardando fotos en los productos…');const rows=[];H.forEach(h=>{const imgs=h.u.filter(Boolean);if(!imgs.length)return;const o={...h.p};delete o.id;rows.push({id:h.p.id,data:{...o,imgs}})});
   for(let i=0;i<rows.length;i+=100){const{error}=await SB.from('products').upsert(rows.slice(i,i+100));if(error)throw error}
-  sync('products');ZP=null;toast(rows.length+' producto'+(rows.length==1?'':'s')+' con foto'+(fail?' ('+fail+' fotos fallaron)':''));render()
- }catch(e){toast('No se pudo terminar la carga')}finally{ZPB=0;const e2=$('[data-a=zipgo]');e2&&(e2.disabled=false)}}
+  sync('products');ZP=null;Prog.end(rows.length+' producto'+(rows.length==1?'':'s')+' con foto'+(fail?' · '+fail+' foto'+(fail==1?'':'s')+' con error':''),fail>0);toast(rows.length+' producto'+(rows.length==1?'':'s')+' con foto'+(fail?' ('+fail+' fotos fallaron)':''));render()
+ }catch(e){Prog.end('No se pudo terminar la carga',true);toast('No se pudo terminar la carga')}finally{ZPB=0;const e2=$('[data-a=zipgo]');e2&&(e2.disabled=false)}}
 function zipV(){const z=ZP,n=z.hits.length,s=k=>k==1?'':'s',m=z.miss.length,o=z.orph.length;
  return `<h2>Revisá antes de subir las fotos</h2><div class="sec"><p style="margin-top:0"><b>${z.nimg}</b> foto${s(z.nimg)} para <b>${n}</b> producto${s(n)}<br><span class="mut">${esc(z.name)}</span></p>${m?`<p class="mut" style="line-height:1.6">⚠ ${m} producto${s(m)} con código sin foto en el ZIP: ${z.miss.slice(0,4).map(p=>esc(p.cod)).join(', ')}${m>4?'…':''}</p>`:''}${o?`<p class="mut" style="line-height:1.6">⚠ ${o} foto${s(o)} sin producto: ${z.orph.slice(0,4).map(esc).join(', ')}${o>4?'…':''}</p>`:''}${z.nocod?`<p class="mut">${z.nocod} producto${s(z.nocod)} sin código, no se tocan.</p>`:''}${n?'<p class="mut" style="line-height:1.6;margin-bottom:0">Las fotos actuales de estos productos se reemplazan por las del ZIP.</p>':`<p class="mut" style="line-height:1.6;margin-bottom:0">No coincidió ninguna foto. El nombre de cada foto tiene que ser igual al código del producto (tus códigos: ${z.cods.map(esc).join(', ')}…), por ejemplo ${esc(z.cods[0]||'001')}.jpg</p>`}</div>${z.hits.slice(0,5).map(h=>`<div class="li"><b>${esc(h.p.n)}<br><span class="mut" style="font-weight:400;font-size:14px">#${esc(h.p.cod)} · ${h.fs.length} foto${s(h.fs.length)}</span></b></div>`).join('')}${n>5?`<p class="mut">y ${n-5} más…</p>`:''}${n?`<button class="btn w" data-a="zipgo">Subir ${z.nimg} foto${s(z.nimg)}</button><br><br>`:''}<button class="chip" style="width:100%" data-a="zipclr">Cancelar</button>`}
 function xlsV(){if(ZP)return zipV();if(!XL)return `<h2>Importar desde Excel</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Cargá muchos productos de una sola vez. Descargá la plantilla, completala con una fila por producto (código, nombre, categoría, ml, descripción, precios) y subila acá. Las categorías nuevas se crean solas, y si un producto ya existe con el mismo nombre, se actualiza en vez de duplicarse.</p><button class="btn g w" data-a="xlstpl">Descargar plantilla</button></div><div class="sec"><input id="xf" type="file" accept=".xlsx,.xls,.csv" hidden><label for="xf" class="upb">${ic('upload',22)}Subir Excel</label></div><h2>Fotos desde un ZIP</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Después de cargar el Excel, subí un ZIP con las fotos. Cada foto tiene que llamarse igual que el código del producto, por ejemplo <b>001.jpg</b>. Si un producto tiene varias fotos: <b>001_2.jpg</b>, <b>001_3.jpg</b>. Antes de subir te muestro qué coincide.</p><input id="zf" type="file" accept=".zip,application/zip,application/x-zip-compressed" hidden><label for="zf" class="upb">${ic('upload',22)}Subir ZIP de fotos</label></div>${S.prods.length?'<h2>Copia de seguridad</h2><div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Descargá un Excel con todos tus productos (código, precios, fotos). Sirve de respaldo y se puede volver a subir.</p><button class="btn g w" data-a="xlsexp">Descargar Excel de productos</button></div>':''}${S.prods.some(p=>p.imgs&&p.imgs.length)?`<div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Hay ${S.prods.reduce((a,p)=>a+(p.imgs||[]).length,0)} fotos cargadas en ${S.prods.filter(p=>p.imgs&&p.imgs.length).length} productos.</p><button class="chip" style="width:100%;color:#ff8a80" data-a="imgsdel">Borrar todas las fotos cargadas</button></div>`:''}${S.prods.some(p=>p.xl)?`<div class="sec"><p class="mut" style="margin-top:0;line-height:1.6">Hay ${S.prods.filter(p=>p.xl).length} productos cargados desde Excel.</p><button class="chip" style="width:100%;color:#ff8a80" data-a="xlsdel">Borrar todos los cargados desde Excel</button></div>`:''}`;
@@ -464,7 +525,7 @@ document.addEventListener('click',async e=>{{const od=$('.lkp.open');if(od&&!e.t
  else if(a=='edp'){ed=d.id;render()}else if(a=='cancel'){ed=null;render()}
  else if(a=='clrim'){if(IM.length&&confirm('¿Quitar las '+IM.length+' fotos de este producto? Se borran al guardar.')){IM=[];$('#pv').innerHTML=thumbs();toast('Fotos quitadas')}}
  else if(a=='rmi'){IM.splice(+d.k,1);$('#pv').innerHTML=thumbs()}
- else if(a=='cut'){const k=+d.k,u=IM[k];if(!u||t.disabled)return;t.disabled=true;toast('Quitando fondo…');try{const bl=await (await fetch(u,{mode:'cors'})).blob(),r=await prepImg(bl,true);if(!r||!r.cut){toast('No se pudo recortar bien. Se dejó la foto original');t.disabled=false;return}const bk=SB.storage.from('essenza'),p=uid()+'.'+r.ext,{error}=await bk.upload(p,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;IM[k]=bk.getPublicUrl(p).data.publicUrl;$('#pv').innerHTML=thumbs();toast('Fondo quitado')}catch(e){toast('No se pudo quitar el fondo');t.disabled=false}}
+ else if(a=='cut'){const k=+d.k,u=IM[k];if(!u||t.disabled)return;t.disabled=true;Prog.open('Quitando fondo',[{id:0,label:'Foto '+(k+1)}]);Prog.set(0,'prep');try{const bl=await (await fetch(u,{mode:'cors'})).blob(),r=await prepImg(bl,true,(s,x)=>Prog.set(0,s,x));if(!r||!r.cut){Prog.fin(0,false,'Se dejó la original');Prog.end('No se pudo recortar bien',true);t.disabled=false;return}Prog.pic(0,r.b);Prog.set(0,'up');const bk=SB.storage.from('essenza'),p=uid()+'.'+r.ext,{error}=await bk.upload(p,r.b,{contentType:r.type,cacheControl:'31536000'});if(error)throw error;IM[k]=bk.getPublicUrl(p).data.publicUrl;$('#pv').innerHTML=thumbs();Prog.fin(0,true,'Listo · fondo quitado');Prog.end('Fondo quitado')}catch(e){Prog.fin(0,false,'Error');Prog.end('No se pudo quitar el fondo',true);t.disabled=false}}
  else if(a=='mkp'){if(!g('#pn'))return alert('Falta el nombre.');const n=s=>parseInt(String(g(s)||'').replace(/\D/g,''))||0,id=ed||uid();
   if(await put('products',id,{n:g('#pn'),c:$('#pc').value,p:n('#pp'),o:n('#po'),d:$('#pds').value.trim(),sz:(g('#psz')||'').split(',').map(x=>x.trim()).filter(Boolean),imgs:IM,f:$('#pd').checked?1:0,...((S.prods.find(q=>q.id==id)||{}).xl?{xl:1}:{}),...((S.prods.find(q=>q.id==id)||{}).cod?{cod:S.prods.find(q=>q.id==id).cod}:{})})){ed=null;toast('Producto guardado');render()}}
  else if(a=='mkc'){if(g('#nc')){await put('cats',uid(),{n:g('#nc')});$('#nc').value=''}}
