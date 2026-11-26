@@ -146,10 +146,12 @@ a{color:var(--co2)}a:focus-visible,button:focus-visible,summary:focus-visible{ou
 .brp[hidden]{display:none}
 .brp .chip{padding:9px 16px;font-size:14px}
 .brp .chip.on{background:linear-gradient(135deg,var(--co2),var(--co))}
+/* v5: sin recorte automático de fondo (borraba partes oscuras del frasco) */
+.gsl img:not([data-ok]),.li.cl .t img:not([data-ok]){opacity:1!important}
 /* v4: imágenes nítidas (el fondo claro lavaba el mix-blend lighten) */
 .card{background:var(--cd)}
 .pic{background:rgba(255,255,255,.04)}
-</style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){var C={},SEL=[['.gsl img',900],['.li.cl .t img',260]],T=70,T2=T*T;
+</style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){var C={},SEL=[],T=70,T2=T*T;
 function done(i){i.setAttribute('data-ok','1')}
 function job(src,S){var key=S+'|'+src;return C[key]||(C[key]=new Promise(function(ok){var m=new Image();m.crossOrigin='anonymous';m.decoding='async';m.onerror=function(){ok(null)};
 m.onload=function(){try{var r=Math.min(1,S/Math.max(m.naturalWidth,m.naturalHeight)),w=Math.max(1,Math.round(m.naturalWidth*r)),h=Math.max(1,Math.round(m.naturalHeight*r)),cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(m,0,0,w,h);var im=x.getImageData(0,0,w,h),d=im.data,N=w*h,cs=[0,w-1,(h-1)*w,N-1],br=0,bg=0,bb=0;
