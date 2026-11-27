@@ -465,8 +465,8 @@ function rvModal(){let m=$('#rmo');if(!m){m=document.createElement('div');m.id='
  m.classList.add('on');document.documentElement.style.overflow='hidden'}
 const rvClose=()=>{const m=$('#rmo');if(m)m.classList.remove('on');document.documentElement.style.overflow=''};
 const pst=p=>{const m=p.imgs||[];return m.length?`<span class="pst">${m.slice(0,5).map(u=>`<img src="${esc(u)}" alt="" loading="lazy" decoding="async">`).join('')}${m.length>5?`<i>+${m.length-5}</i>`:''}</span>`:'<span class="pst"><i>Sin fotos</i></span>'};
-const pic=(p,s)=>(p.imgs||[])[0]?`<img src="${esc(p.imgs[0])}" alt="" loading="lazy" decoding="async">`:bot(s);
-const card=p=>`<div class="card" data-a="open" data-id="${p.id}">${p.o>p.p&&p.p?`<span class="badge">-${Math.round((1-p.p/p.o)*100)}%</span>`:''}<div class="pic">${pic(p,92)}</div>${p.c=='Fragancias'&&brandOf(p)?`<div class="bn">${esc(brandOf(p))}</div>`:''}<div class="nm">${esc(p.n)}</div><div class="pr">${gs(p.p)}</div>${p.o>p.p&&p.p?`<s>${gs(p.o)}</s>`:''}</div>`;
+const pic=(p,s,hi)=>(p.imgs||[])[0]?`<img src="${esc(p.imgs[0])}" alt="" ${hi?'loading="eager" fetchpriority="high"':'loading="lazy"'} decoding="async">`:bot(s);
+const card=(p,i)=>`<div class="card" data-a="open" data-id="${p.id}">${p.o>p.p&&p.p?`<span class="badge">-${Math.round((1-p.p/p.o)*100)}%</span>`:''}<div class="pic">${pic(p,92,i<6)}</div>${p.c=='Fragancias'&&brandOf(p)?`<div class="bn">${esc(brandOf(p))}</div>`:''}<div class="nm">${esc(p.n)}</div><div class="pr">${gs(p.p)}</div>${p.o>p.p&&p.p?`<s>${gs(p.o)}</s>`:''}</div>`;
 const wa=(t,w)=>{if(!WA()){navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});return toast('Configurá el WhatsApp en el panel')}const o=$('#wo');o.classList.add('on');setTimeout(()=>o.classList.remove('on'),1600);window.open(`https://wa.me/${WA()}?text=${encodeURIComponent(t)}`,'_blank')};
 const cartT=()=>S.cart.reduce((a,c)=>a+c.q*((find(c.id)||{}).p||0),0);
 const shipZ=()=>SH().find(z=>z.n==shipSel);const FS=()=>{const v=SET().fs;return v==null?300000:(+v||0)};const freeS=()=>FS()>0&&cartT()>=FS();const shipC=z=>z?(freeS()?0:(+z.c||0)):0;const fsHint=()=>FS()>0?(freeS()?'<br>🎉 ¡Tu envío es gratis!':'<br>Te faltan <b>'+gs(FS()-cartT())+'</b> para envío gratis.'):'';
@@ -482,7 +482,8 @@ const BRM=['Al Haramain','Al Rehab','Al Wataniah','Carolina Herrera','Paco Raban
 const brandOf=p=>{const m=String(p.d||'').match(/(?:^|\n)\s*marca\s*:\s*([^\n]+)/i);if(m&&m[1].trim())return m[1].trim();const n=String(p.n||'').trim(),k=nz(n)+' ',f=BRM.find(b=>k.startsWith(nz(b)+' '));if(f)return f;const w=n.split(/\s+/);return(BRP.includes(nz(w[0]))&&w[1]?w[0]+' '+w[1]:w[0])||''};
 const brandsUI=()=>{const e=$('#brs');if(!e)return;if(cat!='Fragancias'){e.hidden=true;e.innerHTML='';return}const m=new Map();P().filter(p=>p.c=='Fragancias').forEach(p=>{const b=brandOf(p),k=nz(b);if(!k)return;const o=m.get(k)||{n:b,c:0};o.c++;m.set(k,o)});const L=[...m.values()].sort((a,b)=>a.n.localeCompare(b.n,'es',{sensitivity:'base'}));if(br!='Todas'&&!L.some(x=>nz(x.n)==nz(br)))br='Todas';e.hidden=!L.length;e.innerHTML=L.length?`<button type=\"button\" class=\"brh${brOpen?' open':''}\" data-a=\"brtog\" aria-expanded=\"${brOpen}\"><span class=\"brl\">Marca</span><b>${br=='Todas'?'Todas las marcas':esc(br)}</b><span class=\"brn\">${L.length}</span><i class=\"brc\"></i></button><div class=\"brp\"${brOpen?'':' hidden'}><button class=\"chip ${br=='Todas'?'on':''}\" data-a=\"brand\" data-b=\"Todas\">Todas</button>${L.map(x=>`<button class=\"chip ${nz(x.n)==nz(br)?'on':''}\" data-a=\"brand\" data-b=\"${esc(x.n)}\">${esc(x.n)} <span class=\"bc\">${x.c}</span></button>`).join('')}</div>`:''};
 const fmSync=()=>{const f=$('#fm');if(!f)return;const ps=P(),ok=c=>c=='Todas'||c==cat||!S.hit||ps.some(p=>p.c==c);f.innerHTML=['Todas',...CATS()].filter(ok).map(c=>`<button class="${c==cat?'on':''}" data-a="cat" data-c="${esc(c)}">${esc(c)}</button>`).join('')};
-const grid=()=>{const g=$('#grid');if(!g)return;if(cat!='Todas'&&P().length&&S.hit&&!P().some(p=>p.c==cat)){cat='Todas';br='Todas'}fmSync();brandsUI();const ws=nz(q).split(/\s+/).filter(Boolean),l=P().filter(p=>(cat=='Todas'||p.c==cat)&&(cat!='Fragancias'||br=='Todas'||nz(brandOf(p))==nz(br))&&ws.every(w=>nz(p.n+' '+p.c+' '+brandOf(p)).includes(w)));setG(g,!S.hit?SK(8):l.length?l.slice(0,lim).map(card).join('')+(l.length>lim?`<div style="grid-column:1/-1;text-align:center"><button class="chip" data-a="more">Ver más (${l.length-lim})</button></div>`:''):`<p class="mut" style="grid-column:1/-1;text-align:center;margin:30px 0">Sin resultados${q.trim()?` para “${esc(q.trim())}”`:''}.</p>`);const b=$('#fb');if(b)b.classList.toggle('on',cat!='Todas')};
+const GR={n:16,t:0};
+const grid=()=>{const g=$('#grid');if(!g)return;if(cat!='Todas'&&P().length&&S.hit&&!P().some(p=>p.c==cat)){cat='Todas';br='Todas'}fmSync();brandsUI();const ws=nz(q).split(/\s+/).filter(Boolean),l=P().filter(p=>(cat=='Todas'||p.c==cat)&&(cat!='Fragancias'||br=='Todas'||nz(brandOf(p))==nz(br))&&ws.every(w=>nz(p.n+' '+p.c+' '+brandOf(p)).includes(w)));const eff=Math.min(lim,GR.n);if(GR.n<lim&&l.length>GR.n&&!GR.t)GR.t=setTimeout(()=>{GR.t=0;GR.n=9999;grid()},250);setG(g,!S.hit?SK(8):l.length?l.slice(0,eff).map(card).join('')+(l.length>lim?`<div style="grid-column:1/-1;text-align:center"><button class="chip" data-a="more">Ver más (${l.length-lim})</button></div>`:''):`<p class="mut" style="grid-column:1/-1;text-align:center;margin:30px 0">Sin resultados${q.trim()?` para “${esc(q.trim())}”`:''}.</p>`);const b=$('#fb');if(b)b.classList.toggle('on',cat!='Todas')};
 function descHTML(d){return '<div class="dsc" style="margin:12px 0 16px">'+String(d).split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^([^:]{1,40}):\s*(.*)$/);return m?`<div><b>${esc(m[1])}:</b> ${esc(m[2])}</div>`:`<div>${esc(l)}</div>`}).join('')+'</div>'}
 const CRC={};function home(){const ps=P(),F=ps.some(p=>p.f)?ps.filter(p=>p.f):ps,O=ps.filter(p=>p.o>p.p&&p.p),cp=ps.filter(p=>p.f&&(p.imgs||[])[0]),ck=cp.map(p=>p.id+'|'+p.imgs[0]).join(','),cr=(CRC.k==ck?CRC.l:(CRC.k=ck,CRC.l=cp.map(p=>({id:p.id,n:p.n,u:p.imgs[0]})).sort(()=>Math.random()-.5))),ci=cr.length?(()=>{let l=cr.slice();while(l.length<8)l=l.concat(cr);return l.map(x=>`<div class=\"ci\" data-a=\"open\" data-id=\"${x.id}\" role=\"button\" aria-label=\"${esc(x.n)}\"><div class=\"cim\"><img src=\"${esc(x.u)}\" alt=\"${esc(x.n)}\" loading=\"eager\" fetchpriority=\"high\" decoding=\"async\"></div><div class=\"cn\">${esc(x.n)}</div></div>`).join('')})():'';
  return `<div class="c"><div class="hero"><div class="eb">BOUTIQUE DE BELLEZA Y CUIDADO PERSONAL</div><h1>Fragancias exclusivas, tratamientos faciales y cuidados capilares</h1><p class="mut">De las marcas más exclusivas del mundo. Una selección de productos 100% originales, con asesoramiento experto y envíos a todo el país.</p><div class="row"><button class="btn" data-a="go" data-h="catalogo">Ver catálogo</button></div></div>${ci?`<div class="car"><div class="cart">${ci+ci}</div></div>`:''}
@@ -518,7 +519,7 @@ const LGV=v=>{const L=LEG[v];return `<button class="back" data-a="back">← Volv
 let pv='',hist=0,fw=0;const SP={},dp=x=>x?x=='catalogo'?1:2:0,IO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('pz',!e.isIntersecting)));
 function render(soft){if(S.prods.length){const n=S.cart.length;S.cart=S.cart.filter(c=>find(c.id)&&+c.q>0);if(S.cart.length!=n)save()}
 if(!$('#lg').src)$('#lg').src=LOGO;$('#cb').innerHTML=ic('cart')+(S.cart.length?`<span class="cnt">${S.cart.reduce((a,c)=>a+c.q,0)}</span>`:'');$('#sb').innerHTML=ic('search');if(!$('#wf').firstChild)$('#wf').innerHTML='<span class="wi"></span>';{const fs=SET().fs==null?300000:+SET().fs;$('#pb').innerHTML=fs>0?ic('truck',16)+'<span>Envío gratis desde '+gs(fs)+'</span>':''}
- const v=location.hash.slice(1),M=$('#m');document.body.classList.toggle('isadm',v=='admin');let h;if(pv!==v&&!soft)SP[pv]=scrollY;
+ const v=location.hash.slice(1),M=$('#m');if(v=='catalogo'&&pv!==v&&!soft)GR.n=SP.catalogo>0?9999:16;document.body.classList.toggle('isadm',v=='admin');let h;if(pv!==v&&!soft)SP[pv]=scrollY;
  if(soft&&(v=='catalogo'||v=='carrito'||v=='producto'&&!find(sel)||v=='admin'&&0)){if(v=='catalogo')grid();return}
  if(soft&&v=='admin'&&document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
  if(soft&&v=='producto'){prRefresh();return}
@@ -699,12 +700,12 @@ img[data-hf],img[src^="blob:"]{mix-blend-mode:normal!important;opacity:1!importa
 var ON=true,C=new Map(),D={n:0,ok:0,none:0,err:{}};
 function rep(k){if(k)D.err[k]=(D.err[k]||0)+1}
 function bust(u){try{var o=new URL(u,location.href);if(o.origin!==location.origin)o.searchParams.set('hf','1');return o.href}catch(e){return u}}
-function fix(src){
- if(C.has(src))return C.get(src);
+function fix(src,max){
+ var key=src+'|'+max;if(C.has(key))return C.get(key);
  var pr=new Promise(function(res){
-  var im=new Image();im.crossOrigin='anonymous';
+  (function go(url,retry){var im=new Image();im.crossOrigin='anonymous';
   im.onload=function(){try{
-   var k=Math.min(1,1000/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k);
+   var k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k);
    var cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,w,h);
    var d=x.getImageData(0,0,w,h),a=d.data,N=w*h,opq=0,dark=new Uint8Array(N),oy0=h,oy1=0;
    for(var i=0;i<N;i++){var o=i*4;if(a[o+3]>128){opq++;var oy=(i/w)|0;if(oy<oy0)oy0=oy;if(oy>oy1)oy1=oy;if(a[o]<=8&&a[o+1]<=8&&a[o+2]<=8)dark[i]=1}}
@@ -730,13 +731,17 @@ function fix(src){
       if(!m2[n]&&a[n*4+3]>128&&a[n*4]<80&&a[n*4+1]<80&&a[n*4+2]<80)m2[n]=1})}m=m2}
    for(var i=0;i<N;i++)if(m[i])a[i*4+3]=0;
    x.putImageData(d,0,0);cv.toBlob(function(b){if(b)D.ok++;rep();res(b?URL.createObjectURL(b):null)},'image/png');
-  }catch(e){rep('canvas:'+(e&&e.name));res(null)}};
-  im.onerror=function(){rep('carga/CORS');res(null)};im.src=bust(src)});
- C.set(src,pr);return pr}
+  }catch(e){if(retry)return go(bust(src),0);rep('canvas:'+(e&&e.name));res(null)}};
+  im.onerror=function(){if(retry)return go(bust(src),0);rep('carga/CORS');res(null)};im.src=url})(src,1)});
+ C.set(key,pr);return pr}
+var Q=[],busy=0,IOH=window.IntersectionObserver?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){IOH.unobserve(e.target);Q.push(e.target)}});pump()},{rootMargin:'400px 0px'}):null;
+function pump(){if(busy||!Q.length)return;var img=Q.shift(),s=img.getAttribute('src');if(!img.isConnected||!s){return pump()}
+ busy=1;var max=img.closest('.gsl,.gs')?900:420;
+ fix(s,max).then(function(u){if(u&&img.getAttribute('src')===s)img.src=u}).then(function(){busy=0;(window.requestIdleCallback||setTimeout)(pump,{timeout:120})})}
 function scan(){if(!ON)return;document.querySelectorAll('img[src]').forEach(function(img){
  if(img.dataset.hf)return;var s=img.getAttribute('src');
  if(!/^https?:/.test(s)||!/\.(png|webp)(\?|$)/i.test(s)||/essenza.*logo|logo/i.test(s))return;
- img.dataset.hf='1';D.n++;fix(s).then(function(u){if(u&&img.getAttribute('src')===s)img.src=u})})}
+ img.dataset.hf='1';D.n++;if(IOH)IOH.observe(img);else{Q.push(img);pump()}})}
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(scan,60)}).observe(document.body,{childList:true,subtree:true});
 scan();
 })();
