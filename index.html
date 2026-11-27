@@ -236,6 +236,8 @@ img[src*=".jpg"],img[src*=".jpeg"]{mix-blend-mode:normal!important;background:#f
 .cart{will-change:transform}
 .dots i{transition:width .35s cubic-bezier(.22,1,.36,1),background-color .3s}
 .gs{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+
+.gs .gsl img{filter:none!important}
 </style><script id="sbj" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script>['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script><script>(function(){
 var LIB=null,Q=Promise.resolve(),MAXS=800,DEV=(navigator.gpu?'gpu':'cpu'),MODEL=(navigator.gpu?'isnet_fp16':'isnet_quint8');
 function auto(){try{return localStorage.getItem('essAutoCut3')!=='0'}catch(_){return true}}
@@ -752,7 +754,7 @@ img[data-hf],img[src^="blob:"]{mix-blend-mode:normal!important;opacity:1!importa
 <script>
 /* Quita el negro puro encerrado (el huequito del asa) de las fotos de frascos */
 (function(){
-var ON=false,C=new Map(),D={n:0,ok:0,none:0,err:{}};
+var ON=true,C=new Map(),D={n:0,ok:0,none:0,err:{}};
 function rep(k){if(k)D.err[k]=(D.err[k]||0)+1}
 function bust(u){try{var o=new URL(u,location.href);if(o.origin!==location.origin)o.searchParams.set('hf','1');return o.href}catch(e){return u}}
 function fix(src,max){
@@ -762,8 +764,8 @@ function fix(src,max){
   im.onload=function(){try{
    var k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k);
    var cv=document.createElement('canvas');cv.width=w;cv.height=h;var x=cv.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,w,h);
-   var d=x.getImageData(0,0,w,h),a=d.data,N=w*h,opq=0,dark=new Uint8Array(N),oy0=h,oy1=0;
-   for(var i=0;i<N;i++){var o=i*4;if(a[o+3]>128){opq++;var oy=(i/w)|0;if(oy<oy0)oy0=oy;if(oy>oy1)oy1=oy;if(a[o]<=8&&a[o+1]<=8&&a[o+2]<=8)dark[i]=1}}
+   var d=x.getImageData(0,0,w,h),a=d.data,N=w*h,opq=0,dark=new Uint8Array(N),oy0=h,oy1=0,ox0=w,ox1=0;
+   for(var i=0;i<N;i++){var o=i*4;if(a[o+3]>128){opq++;var oy=(i/w)|0,ox=i-oy*w;if(oy<oy0)oy0=oy;if(oy>oy1)oy1=oy;if(ox<ox0)ox0=ox;if(ox>ox1)ox1=ox;if(a[o]<=8&&a[o+1]<=8&&a[o+2]<=8)dark[i]=1}}
    var seen=new Uint8Array(N),kill=[],st=[],ext=new Uint8Array(N);
    for(var e0=0;e0<N;e0++){var ex=e0%w,ey=(e0-ex)/w;if((ex==0||ey==0||ex==w-1||ey==h-1)&&a[e0*4+3]<=128&&!ext[e0]){ext[e0]=1;st.push(e0)}}
    while(st.length){var i=st.pop();var cx=i%w,cy=(i-cx)/w;var nb=[cx>0?i-1:-1,cx<w-1?i+1:-1,cy>0?i-w:-1,cy<h-1?i+w:-1];for(var q=0;q<4;q++){var n=nb[q];if(n>=0&&!ext[n]&&a[n*4+3]<=128){ext[n]=1;st.push(n)}}}
@@ -778,7 +780,7 @@ function fix(src,max){
       if(ext[n]){touch=true;continue}
       if(dark[n]&&!seen[n]){seen[n]=1;st.push(n)}}}
     var bw=x1-x0+1,bh=y1-y0+1,ar=comp.length/opq,fill=comp.length/(bw*bh),asp=bw/bh;
-    var cyc=(y0+y1)/2;if(!touch&&ar>=.005&&ar<=.15&&fill>=.3&&asp>=.35&&asp<=2.5&&cyc<oy0+.45*(oy1-oy0))kill.push(comp)}
+    var cyc=(y0+y1)/2;if(!touch&&ar>=.005&&ar<=.15&&fill>=.3&&asp>=.35&&asp<=2.5&&cyc<oy0+.45*(oy1-oy0)&&Math.abs((x0+x1)/2-(ox0+ox1)/2)>.22*(ox1-ox0))kill.push(comp)}
    if(!kill.length){D.none++;rep();res(null);return}
    var m=new Uint8Array(N);kill.forEach(function(c){c.forEach(function(i){m[i]=1})});
    for(var it=0;it<3;it++){var m2=m.slice();for(var i=0;i<N;i++){if(!m[i])continue;var cx=i%w,cy=(i-cx)/w;
