@@ -687,6 +687,9 @@ document.addEventListener('keydown',e=>{if(e.key=='Escape')rvClose();if(e.key=='
 /* fix filtros: el menú de categorías quedaba debajo del selector de marcas */
 .sbar{z-index:8}.fm{z-index:9;background:#0e3556;opacity:1}
 .fm button{min-height:48px}
+/* imagen del detalle mas chica */
+.gsl{min-height:0!important}.gsl img,.gsl img[src*=".jpg"],.gsl img[src*=".jpeg"]{width:auto!important;max-width:72%!important;max-height:300px!important;margin:0 auto}
+.gsl svg{height:130px}
 /* fotos procesadas (blob:) sin mezcla 'lighten', que las teñía de azul */
 img[data-hf],img[src^="blob:"]{mix-blend-mode:normal!important;opacity:1!important}
 </style>
@@ -694,7 +697,7 @@ img[data-hf],img[src^="blob:"]{mix-blend-mode:normal!important;opacity:1!importa
 /* Quita el negro puro encerrado (el huequito del asa) de las fotos de frascos */
 (function(){
 var ON=true,C=new Map(),D={n:0,ok:0,none:0,err:{}};
-function rep(k){if(k)D.err[k]=(D.err[k]||0)+1;if(!/[?&]dbg/.test(location.search))return;var b=document.getElementById('hfdbg');if(!b){b=document.createElement('div');b.id='hfdbg';b.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:999;background:#000d;color:#fff;font:12px/1.4 monospace;padding:8px;border-radius:8px;pointer-events:none';document.body.appendChild(b)}b.textContent='fotos:'+D.n+' arregladas:'+D.ok+' sin hueco:'+D.none+' errores:'+JSON.stringify(D.err)}
+function rep(k){if(k)D.err[k]=(D.err[k]||0)+1}
 function bust(u){try{var o=new URL(u,location.href);if(o.origin!==location.origin)o.searchParams.set('hf','1');return o.href}catch(e){return u}}
 function fix(src){
  if(C.has(src))return C.get(src);
